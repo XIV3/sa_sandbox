@@ -1,4 +1,4 @@
-@extends('layouts.guest')
+@extends('layouts.main')
 
 @section('content')
 <!-- Hero Section -->
@@ -74,7 +74,7 @@
                         </div>
                     @endif
                     
-                    <form action="{{ route('create-site') }}" method="POST" class="mb-0">
+                    <form action="#" method="POST" class="mb-0">
                         @csrf
                         <div class="mb-4">
                             <label for="subdomain" class="form-label fw-medium mb-2">Choose Your Subdomain</label>
@@ -143,7 +143,8 @@
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill">
+                        <button type="button" class="btn btn-primary btn-lg w-100 py-3 rounded-pill" 
+                                onclick="alert('Coming soon! This functionality will be implemented later.')">
                             <span class="fw-semibold">Create Throwaway Site</span> <i class="fas fa-rocket ms-2"></i>
                         </button>
                     </form>

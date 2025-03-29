@@ -1,39 +1,24 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Route to handle WordPress site creation form submission
-// This is a placeholder that will be implemented later
-Route::post('/create-site', function (Request $request) {
-    // Validate the input
-    $rules = [
-        'subdomain' => 'required|string|alpha_dash|min:3|max:30',
-        'terms' => 'required|accepted',
-    ];
+// Admin Routes
+Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/sites', [AdminController::class, 'sites'])->name('admin.sites');
+    Route::get('/servers', [AdminController::class, 'servers'])->name('admin.servers');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     
-    // Only validate email if the send_email checkbox is selected
-    if ($request->has('send_email')) {
-        $rules['email'] = 'required|email';
-    }
-    
-    $validated = $request->validate($rules);
-    
-    // Here we'll implement the actual site creation logic later
-    // using the ServerAvatar API for WordPress auto-installation
-    
-    // For now, just return a success message
-    $successMessage = 'Your throwaway WordPress site is being created!';
-    
-    if ($request->has('send_email')) {
-        $successMessage .= ' Check your email for login details and we\'ll remind you before deletion.';
-    } else {
-        $successMessage .= ' Your site will be available shortly and auto-deleted in 24 hours.';
-    }
-    
-    return back()->with('success', $successMessage);
-})->name('create-site');
+    // Profile Routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
