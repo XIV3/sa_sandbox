@@ -115,13 +115,16 @@
                                         {{ $site->created_at->format('M d, Y') }}
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                        <div class="flex justify-end space-x-3">
-                                            <a href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                                            <form action="{{ route('admin.sites.destroy', $site) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this site?');">
+                                        <div x-data="{ deleting: false }" class="flex justify-end space-x-3">
+                                            <a x-show="!deleting" href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                            <form x-show="!deleting" action="{{ route('admin.sites.destroy', $site) }}" method="POST" class="inline" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this site?');"
+                                                  @submit="deleting = true">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
                                             </form>
+                                            <span x-show="deleting" class="text-gray-500 italic">Deleting...</span>
                                         </div>
                                     </td>
                                 </tr>

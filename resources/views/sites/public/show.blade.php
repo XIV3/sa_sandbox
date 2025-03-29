@@ -4,31 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $site->domain }} - Site Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #6B7280;
+            --accent-color: #EC4899;
+        }
+    </style>
 </head>
 <body class="font-sans text-gray-900 antialiased bg-gray-100">
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full {{ $site->status == 'active' ? 'bg-green-500' : ($site->status == 'maintenance' ? 'bg-yellow-500' : 'bg-red-500') }} animate-pulse"></span>
-                        {{ $site->name }}
-                    </h2>
-                    <div class="mt-1 text-gray-600 text-sm flex items-center gap-2">
-                        <span>{{ $site->domain }}</span>
-                        <a href="https://{{ $site->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                        </a>
+    <header>
+        <nav class="navbar navbar-expand-lg py-3 fixed-top bg-white bg-opacity-95">
+            <div class="container">
+                <a class="navbar-brand" href="{{ route('home') }}">
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold" style="color: var(--primary-color); line-height: 1.1; font-size: 2.2rem;">Sandbox</span>
                     </div>
+                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ route('home') }}" class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center shadow-sm" 
+                       style="background: linear-gradient(90deg, var(--primary-color), #6366F1); border: none; transition: all 0.3s ease;">
+                        <i class="fas fa-rocket me-2"></i>
+                        <span>Deploy Temp Site</span>
+                    </a>
                 </div>
             </div>
-        </div>
+        </nav>
     </header>
+    
+    <!-- Spacer to compensate for fixed navbar -->
+    <div class="pb-5 mb-4"></div>
 
     <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -501,6 +513,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
