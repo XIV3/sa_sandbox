@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ __('Admin Dashboard') }}
+                    {{ __('Dashboard') }}
                 </h2>
                 <p class="mt-1 text-gray-600 text-sm">
                     Overview of your server and application status
@@ -36,7 +36,7 @@
                             <div class="ml-5">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Active Sites</h3>
                                 <div class="mt-2 flex items-baseline">
-                                    <span class="text-3xl font-semibold text-indigo-600">24</span>
+                                    <span class="text-3xl font-semibold text-indigo-600">{{ \App\Models\Site::count() }}</span>
                                     <span class="ml-2 text-sm text-gray-600">websites</span>
                                 </div>
                             </div>
@@ -59,7 +59,7 @@
                             <div class="ml-5">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Active Servers</h3>
                                 <div class="mt-2 flex items-baseline">
-                                    <span class="text-3xl font-semibold text-emerald-600">12</span>
+                                    <span class="text-3xl font-semibold text-emerald-600">{{ \App\Models\SelectedServer::count() }}</span>
                                     <span class="ml-2 text-sm text-gray-600">servers</span>
                                 </div>
                             </div>
@@ -70,25 +70,25 @@
                     </div>
                 </div>
 
-                <!-- Sites To Be Deleted Card -->
+                <!-- Current Timeout Card -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                            <div class="p-3 rounded-full bg-orange-100 text-orange-600">
                                 <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                             <div class="ml-5">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900">Sites to be Deleted</h3>
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Current Timeout</h3>
                                 <div class="mt-2 flex items-baseline">
-                                    <span class="text-3xl font-semibold text-red-600">3</span>
-                                    <span class="ml-2 text-sm text-gray-600">within 1 hour</span>
+                                    <span class="text-3xl font-semibold text-orange-600">{{ \App\Models\SystemSetting::where('meta_key', 'default_deletion_time')->value('meta_value') ?? 24 }}</span>
+                                    <span class="ml-2 text-sm text-gray-600">hours</span>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <a href="#" class="text-sm font-medium text-red-600 hover:text-red-500">View pending deletions &rarr;</a>
+                            <a href="{{ route('admin.settings.index') }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Change timeout setting &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -99,327 +99,97 @@
                 <div class="p-6">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Recently Created Sites</h2>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-300">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subdomain</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Server IP</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Password</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Site Name</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Domain</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Server</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">PHP Version</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Expires In</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created At</th>
+                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                        <span class="sr-only">Actions</span>
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <!-- Row 1 -->
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @forelse (\App\Models\Site::with('server')->latest()->take(5)->get() as $site)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full">
-                                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                </svg>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">blog.example.com</div>
-                                                <div class="text-sm text-gray-500">WordPress Site</div>
-                                            </div>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                        @if($site->status == 'active')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-green-600 mr-1.5"></span>
+                                            Active
+                                        </span>
+                                        @elseif($site->status == 'maintenance')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-yellow-600 mr-1.5"></span>
+                                            Maintenance
+                                        </span>
+                                        @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-red-600 mr-1.5"></span>
+                                            Inactive
+                                        </span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $site->name }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        <a href="https://{{ $site->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 hover:underline flex items-center">
+                                            {{ $site->domain }}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </a>
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $site->server->name ?? 'N/A' }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($site->php_version)
+                                        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                                            PHP {{ $site->php_version }}
+                                        </span>
+                                        @else
+                                        <span class="text-gray-400">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($site->expires_at)
+                                            @if($site->expires_at->isPast())
+                                                <span class="px-2 py-1 bg-red-50 text-red-700 rounded text-xs font-medium">
+                                                    Expired
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-1 bg-yellow-50 text-yellow-700 rounded text-xs font-medium">
+                                                    {{ $site->expires_at->diffForHumans(['parts' => 2]) }}
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-400">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $site->created_at->format('M d, Y') }}
+                                    </td>
+                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                        <div class="flex justify-end space-x-3">
+                                            <a href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                            <form action="{{ route('admin.sites.destroy', $site) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this site?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                            </form>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">192.168.1.101</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ copied: false }">
-                                            <span class="text-sm text-gray-900 mr-2">admin_user1</span>
-                                            <button @click="navigator.clipboard.writeText('admin_user1'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ showPwd: false, copied: false }">
-                                            <span x-show="showPwd" class="text-sm text-gray-900 mr-2">SecurePass123!</span>
-                                            <span x-show="!showPwd" class="text-sm text-gray-900 mr-2">••••••••••••</span>
-                                            <button @click="showPwd = !showPwd" class="text-gray-500 hover:text-gray-700 focus:outline-none mr-2">
-                                                <svg x-show="!showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <svg x-show="showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                </svg>
-                                            </button>
-                                            <button @click="navigator.clipboard.writeText('SecurePass123!'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">March 25, 2025 (4 days ago)</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-red-600 hover:text-red-900 focus:outline-none">Delete</button>
                                     </td>
                                 </tr>
-                                
-                                <!-- Row 2 -->
+                                @empty
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full">
-                                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                </svg>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">store.example.com</div>
-                                                <div class="text-sm text-gray-500">E-commerce Site</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">192.168.1.102</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ copied: false }">
-                                            <span class="text-sm text-gray-900 mr-2">store_admin</span>
-                                            <button @click="navigator.clipboard.writeText('store_admin'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ showPwd: false, copied: false }">
-                                            <span x-show="showPwd" class="text-sm text-gray-900 mr-2">StorePass456!</span>
-                                            <span x-show="!showPwd" class="text-sm text-gray-900 mr-2">••••••••••••</span>
-                                            <button @click="showPwd = !showPwd" class="text-gray-500 hover:text-gray-700 focus:outline-none mr-2">
-                                                <svg x-show="!showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <svg x-show="showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                </svg>
-                                            </button>
-                                            <button @click="navigator.clipboard.writeText('StorePass456!'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">March 26, 2025 (3 days ago)</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-red-600 hover:text-red-900 focus:outline-none">Delete</button>
+                                    <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">
+                                        No sites found. <button x-data @click="$dispatch('open-modal')" class="text-indigo-600 hover:text-indigo-900 bg-transparent p-0 border-0 inline underline">Create your first site</button>.
                                     </td>
                                 </tr>
-                                
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full">
-                                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                </svg>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">api.example.com</div>
-                                                <div class="text-sm text-gray-500">API Service</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">192.168.1.103</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ copied: false }">
-                                            <span class="text-sm text-gray-900 mr-2">api_service</span>
-                                            <button @click="navigator.clipboard.writeText('api_service'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ showPwd: false, copied: false }">
-                                            <span x-show="showPwd" class="text-sm text-gray-900 mr-2">ApiKey789!</span>
-                                            <span x-show="!showPwd" class="text-sm text-gray-900 mr-2">••••••••••</span>
-                                            <button @click="showPwd = !showPwd" class="text-gray-500 hover:text-gray-700 focus:outline-none mr-2">
-                                                <svg x-show="!showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <svg x-show="showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                </svg>
-                                            </button>
-                                            <button @click="navigator.clipboard.writeText('ApiKey789!'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">March 27, 2025 (2 days ago)</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-red-600 hover:text-red-900 focus:outline-none">Delete</button>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Row 4 -->
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full">
-                                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                </svg>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">docs.example.com</div>
-                                                <div class="text-sm text-gray-500">Documentation Site</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">192.168.1.104</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ copied: false }">
-                                            <span class="text-sm text-gray-900 mr-2">docs_admin</span>
-                                            <button @click="navigator.clipboard.writeText('docs_admin'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ showPwd: false, copied: false }">
-                                            <span x-show="showPwd" class="text-sm text-gray-900 mr-2">DocsPass321!</span>
-                                            <span x-show="!showPwd" class="text-sm text-gray-900 mr-2">••••••••••••</span>
-                                            <button @click="showPwd = !showPwd" class="text-gray-500 hover:text-gray-700 focus:outline-none mr-2">
-                                                <svg x-show="!showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <svg x-show="showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                </svg>
-                                            </button>
-                                            <button @click="navigator.clipboard.writeText('DocsPass321!'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">March 28, 2025 (yesterday)</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-red-600 hover:text-red-900 focus:outline-none">Delete</button>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Row 5 -->
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-full">
-                                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                </svg>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">app.example.com</div>
-                                                <div class="text-sm text-gray-500">Web Application</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">192.168.1.105</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ copied: false }">
-                                            <span class="text-sm text-gray-900 mr-2">app_manager</span>
-                                            <button @click="navigator.clipboard.writeText('app_manager'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center" x-data="{ showPwd: false, copied: false }">
-                                            <span x-show="showPwd" class="text-sm text-gray-900 mr-2">AppAdmin567!</span>
-                                            <span x-show="!showPwd" class="text-sm text-gray-900 mr-2">••••••••••••</span>
-                                            <button @click="showPwd = !showPwd" class="text-gray-500 hover:text-gray-700 focus:outline-none mr-2">
-                                                <svg x-show="!showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <svg x-show="showPwd" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                </svg>
-                                            </button>
-                                            <button @click="navigator.clipboard.writeText('AppAdmin567!'); copied = true; setTimeout(() => copied = false, 2000)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none">
-                                                <svg x-show="!copied" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                                <svg x-show="copied" class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">March 29, 2025 (today)</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-red-600 hover:text-red-900 focus:outline-none">Delete</button>
-                                    </td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
