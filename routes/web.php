@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,7 +14,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/sites', [AdminController::class, 'sites'])->name('admin.sites');
     Route::get('/servers', [AdminController::class, 'servers'])->name('admin.servers');
-    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    // Settings routes
+    Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings.index');
+    Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
     
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

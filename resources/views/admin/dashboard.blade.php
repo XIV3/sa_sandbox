@@ -449,7 +449,7 @@
                                 <div class="ml-4">
                                     <h4 class="font-medium text-gray-900">Configure Domain with Cloudflare</h4>
                                     <p class="text-gray-600 text-sm mt-1">Connect your domain with Cloudflare integration to enable automatic DNS management and advanced security features.</p>
-                                    <a href="{{ route('admin.settings') }}" class="text-indigo-600 text-sm font-medium hover:text-indigo-500 mt-2 inline-block">Configure Cloudflare &rarr;</a>
+                                    <a href="{{ route('admin.settings.index') }}" class="text-indigo-600 text-sm font-medium hover:text-indigo-500 mt-2 inline-block">Configure Cloudflare &rarr;</a>
                                 </div>
                             </div>
                             
@@ -461,7 +461,7 @@
                                 <div class="ml-4">
                                     <h4 class="font-medium text-gray-900">Configure ServerAvatar API Information</h4>
                                     <p class="text-gray-600 text-sm mt-1">Connect to your ServerAvatar account by providing API keys and credentials to enable server management.</p>
-                                    <a href="{{ route('admin.settings') }}" class="text-indigo-600 text-sm font-medium hover:text-indigo-500 mt-2 inline-block">Setup API Integration &rarr;</a>
+                                    <a href="{{ route('admin.settings.index') }}" class="text-indigo-600 text-sm font-medium hover:text-indigo-500 mt-2 inline-block">Setup API Integration &rarr;</a>
                                 </div>
                             </div>
                             
@@ -485,7 +485,7 @@
                                 <div class="ml-4">
                                     <h4 class="font-medium text-gray-900">Configure SMTP Settings</h4>
                                     <p class="text-gray-600 text-sm mt-1">Set up email delivery by configuring SMTP credentials to enable notifications and system alerts.</p>
-                                    <a href="{{ route('admin.settings') }}" class="text-indigo-600 text-sm font-medium hover:text-indigo-500 mt-2 inline-block">Configure Email &rarr;</a>
+                                    <a href="{{ route('admin.settings.index') }}" class="text-indigo-600 text-sm font-medium hover:text-indigo-500 mt-2 inline-block">Configure Email &rarr;</a>
                                 </div>
                             </div>
                         </div>

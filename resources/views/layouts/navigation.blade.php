@@ -21,7 +21,7 @@
                     <x-nav-link :href="route('admin.servers')" :active="request()->routeIs('admin.servers')">
                         {{ __('Select Servers') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.settings')" :active="request()->routeIs('admin.settings')">
+                    <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.index')">
                         {{ __('System Settings') }}
                     </x-nav-link>
                 </div>
@@ -85,7 +85,7 @@
             <x-responsive-nav-link :href="route('admin.servers')" :active="request()->routeIs('admin.servers')">
                 {{ __('Select Servers') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('admin.settings')" :active="request()->routeIs('admin.settings')">
+            <x-responsive-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.index')">
                 {{ __('System Settings') }}
             </x-responsive-nav-link>
         </div>

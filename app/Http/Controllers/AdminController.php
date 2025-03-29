@@ -21,8 +21,5 @@ class AdminController extends Controller
         return view('admin.servers');
     }
 
-    public function settings()
-    {
-        return view('admin.settings');
-    }
+    // Settings now handled by SettingsController
 }
