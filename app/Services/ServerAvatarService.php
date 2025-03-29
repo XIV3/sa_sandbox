@@ -637,6 +637,108 @@ class ServerAvatarService
     }
 
     /**
+     * Get application details including PHP information
+     *
+     * @param string $serverId Server ID
+     * @param string $applicationId Application ID
+     * @return array Response with success status, message, and data
+     */
+    public function getApplicationDetails(string $serverId, string $applicationId): array
+    {
+        if (!$this->isConfigured) {
+            return [
+                'success' => false,
+                'message' => 'ServerAvatar API is not configured. Please check your settings.',
+                'data' => null
+            ];
+        }
+
+        try {
+            $endpoint = "/organizations/{$this->organizationId}/servers/{$serverId}/applications/{$applicationId}";
+            
+            // Log the request
+            Log::debug('ServerAvatar API Get Application Details Request', [
+                'endpoint' => $this->apiUrl . $endpoint,
+                'organization_id' => $this->organizationId,
+                'server_id' => $serverId,
+                'application_id' => $applicationId
+            ]);
+            
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->apiKey,
+                'Accept' => 'application/json'
+            ])->get($this->apiUrl . $endpoint);
+            
+            // Log the response status
+            Log::debug('ServerAvatar API Get Application Details Response', [
+                'status' => $response->status(),
+                'success' => $response->successful()
+            ]);
+
+            if ($response->successful() && isset($response->json()['application'])) {
+                $application = $response->json()['application'];
+                
+                // Log the keys available in the application object
+                Log::debug('Application object keys', [
+                    'keys' => array_keys($application)
+                ]);
+                
+                // Extract PHP settings directly from the application object
+                // Excluding PHP-FPM specific settings
+                $phpSettings = [
+                    'version' => $application['php_version'] ?? null,
+                    'memory_limit' => $application['memory_limit'] ?? null,
+                    'max_execution_time' => $application['max_execution_time'] ?? null,
+                    'upload_max_filesize' => $application['upload_max_filesize'] ?? null,
+                    'post_max_size' => $application['post_max_size'] ?? null,
+                    'max_input_vars' => $application['max_input_vars'] ?? null,
+                    'max_input_time' => $application['max_input_time'] ?? null
+                ];
+                
+                return [
+                    'success' => true,
+                    'message' => 'Application details retrieved successfully',
+                    'data' => [
+                        'application' => $application,
+                        'php_settings' => $phpSettings
+                    ]
+                ];
+            } else {
+                $errorMessage = 'Failed to retrieve application details. ';
+                $errorData = $response->json();
+                
+                if ($response->status() === 401 || $response->status() === 403) {
+                    $errorMessage .= 'Authentication failed. Please check your API key.';
+                } elseif ($response->status() === 404) {
+                    $errorMessage .= 'Application not found.';
+                } else {
+                    $errorMessage .= 'Server returned status code: ' . $response->status();
+                    if (isset($errorData['message'])) {
+                        $errorMessage .= ' - ' . $errorData['message'];
+                    }
+                }
+                
+                Log::error('ServerAvatar API Error: ' . $errorMessage);
+                
+                return [
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'data' => null
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('ServerAvatar API Exception: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'message' => 'Failed to connect to ServerAvatar API: ' . $e->getMessage(),
+                'data' => null
+            ];
+        }
+    }
+
+    /**
      * Get database information for a WordPress site
      * 
      * @param string $serverId Server ID

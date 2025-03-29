@@ -92,11 +92,9 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-400">PHP Version</div>
+                                    <div class="text-sm font-medium text-gray-400">Expires At</div>
                                     <div class="mt-1 text-base text-gray-900">
-                                        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
-                                            PHP {{ $site->php_version ?? 'Not specified' }}
-                                        </span>
+                                        {{ $site->expires_at ? $site->expires_at->format('F j, Y g:i A') : 'N/A' }}
                                     </div>
                                 </div>
                                 <div>
@@ -161,10 +159,206 @@
                         </div>
                     </div>
                     @endif
+                    
+                    <!-- PHP Information Section -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-indigo-50 mt-6">
+                        <div class="p-6">
+                            <div class="flex items-center border-b border-gray-100 pb-4 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                                <h3 class="text-lg font-semibold leading-6 text-gray-900">PHP Settings</h3>
+                            </div>
+
+                            @if(isset($applicationDetails['application']))
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-4">
+                                    <!-- PHP Version -->
+                                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">PHP Version</div>
+                                        <div class="text-lg font-semibold text-blue-700">
+                                            {{ $applicationDetails['application']['php_version'] ?? $site->php_version ?? 'Not available' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Memory Limit -->
+                                    <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">Memory Limit</div>
+                                        <div class="text-lg font-semibold text-green-700">
+                                            {{ $applicationDetails['application']['memory_limit'] ?? 'Not available' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Max Execution Time -->
+                                    <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">Max Execution Time</div>
+                                        <div class="text-lg font-semibold text-indigo-700">
+                                            {{ $applicationDetails['application']['max_execution_time'] ?? 'Not available' }} seconds
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Max Input Time -->
+                                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">Max Input Time</div>
+                                        <div class="text-lg font-semibold text-purple-700">
+                                            {{ $applicationDetails['application']['max_input_time'] ?? 'Not available' }} seconds
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Max Filesize -->
+                                    <div class="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">Upload Max Filesize</div>
+                                        <div class="text-lg font-semibold text-orange-700">
+                                            {{ $applicationDetails['application']['upload_max_filesize'] ?? 'Not available' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Post Max Size -->
+                                    <div class="bg-gradient-to-r from-teal-50 to-teal-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">Post Max Size</div>
+                                        <div class="text-lg font-semibold text-teal-700">
+                                            {{ $applicationDetails['application']['post_max_size'] ?? 'Not available' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Max Input Vars -->
+                                    <div class="col-span-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 shadow-sm">
+                                        <div class="text-sm font-medium text-gray-500 mb-1">Max Input Variables</div>
+                                        <div class="text-lg font-semibold text-gray-700">
+                                            {{ $applicationDetails['application']['max_input_vars'] ?? 'Not available' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-blue-700">
+                                                These PHP settings are fetched directly from the server. To modify these settings, you'll need to contact the server administrator.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-yellow-700">
+                                                Unable to fetch PHP settings from the server. This could be due to connectivity issues or missing API credentials.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-8 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No PHP settings available</h3>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        PHP settings information could not be retrieved from the server at this time.
+                                    </p>
+                                    <div class="mt-6 bg-gray-50 p-4 rounded-lg shadow-inner">
+                                        <p class="text-xs text-gray-600">
+                                            This could be due to connectivity issues with the server or missing API credentials.
+                                            Default PHP settings are being used according to the server configuration.
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Credentials Sidebar -->
                 <div class="col-span-1">
+                    <!-- Auto-Delete Countdown -->
+                    @if($site->expires_at)
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-red-100 mb-6">
+                        <div class="p-6">
+                            <div class="flex items-center border-b border-gray-100 pb-4 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="text-lg font-semibold leading-6 text-gray-900">Auto-Delete Timer</h3>
+                            </div>
+
+                            <div class="mb-4">
+                                @if($site->expires_at->isPast())
+                                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm font-medium text-red-800">
+                                                    This site has expired and is pending deletion
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div 
+                                        x-data="{ 
+                                            expiryTime: '{{ $site->expires_at->timestamp }}',
+                                            now: Math.floor(Date.now() / 1000),
+                                            countdown: '',
+                                            updateCountdown() {
+                                                this.now = Math.floor(Date.now() / 1000);
+                                                let timeLeft = this.expiryTime - this.now;
+                                                
+                                                if (timeLeft <= 0) {
+                                                    this.countdown = 'Expired';
+                                                    return;
+                                                }
+                                                
+                                                const days = Math.floor(timeLeft / 86400);
+                                                timeLeft %= 86400;
+                                                const hours = Math.floor(timeLeft / 3600);
+                                                timeLeft %= 3600;
+                                                const minutes = Math.floor(timeLeft / 60);
+                                                const seconds = timeLeft % 60;
+                                                
+                                                let parts = [];
+                                                if (days > 0) parts.push(`${days}d`);
+                                                parts.push(`${hours}h`);
+                                                parts.push(`${minutes}m`);
+                                                parts.push(`${seconds}s`);
+                                                
+                                                this.countdown = parts.join(' ');
+                                            }
+                                        }"
+                                        x-init="updateCountdown(); setInterval(() => { updateCountdown() }, 1000)"
+                                    >
+                                        <div class="text-center py-3 bg-yellow-50 rounded-lg">
+                                            <div class="text-sm text-yellow-700 mb-1">This site will be deleted in:</div>
+                                            <div class="text-2xl font-bold text-yellow-800" x-text="countdown"></div>
+                                            <div class="text-xs text-yellow-600 mt-1">
+                                                ({{ $site->expires_at->format('F j, Y g:i A') }})
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4 text-sm text-gray-600">
+                                            <p>All site content and databases will be permanently removed after the timer expires.</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
                     <!-- WordPress Admin -->
                     @if(!empty($site->site_data) && !empty($site->site_data['wp_username']))
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-indigo-50 mb-6">

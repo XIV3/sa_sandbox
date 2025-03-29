@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use App\Models\SystemSetting;
 
 class Site extends Model
 {
@@ -38,6 +39,7 @@ class Site extends Model
         'database_username',
         'database_password',
         'database_host',
+        'expires_at',
     ];
 
     /**
@@ -49,6 +51,7 @@ class Site extends Model
         'site_data' => 'array',
         'reminder' => 'boolean',
         'has_dns_record' => 'boolean',
+        'expires_at' => 'datetime',
     ];
 
     /**
@@ -60,10 +63,16 @@ class Site extends Model
     {
         parent::boot();
 
-        // Generate a UUID when creating a new site
+        // Generate a UUID and set expiration time when creating a new site
         static::creating(function ($site) {
             if (!$site->uuid) {
                 $site->uuid = Str::random(32);
+            }
+            
+            // Set the expiration date based on system settings
+            if (!$site->expires_at) {
+                $defaultDeletionHours = SystemSetting::where('meta_key', 'default_deletion_time')->value('meta_value') ?? 72; // Default to 72 hours if not set
+                $site->expires_at = now()->addHours((int) $defaultDeletionHours);
             }
         });
     }

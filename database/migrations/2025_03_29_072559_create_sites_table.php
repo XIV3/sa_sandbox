@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('server_id')->comment('External server ID from API');
             $table->string('status')->default('active');
             $table->json('site_data')->nullable()->comment('Additional site configuration');
+            $table->timestamp('expires_at')->nullable()->comment('When this site will be automatically deleted');
             $table->timestamps();
             $table->index('uuid');
         });

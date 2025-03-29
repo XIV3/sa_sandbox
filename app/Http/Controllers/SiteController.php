@@ -431,6 +431,9 @@ class SiteController extends Controller
         // Get database information
         $databaseInfo = $createResponse['data']['database'] ?? [];
         
+        // Get default deletion time from system settings
+        $defaultDeletionHours = (int)$this->systemSettings->get('default_deletion_time', 72); // Default to 72 hours if not set
+        
         // Prepare site data
         $siteData = [
             'name' => $validated['subdomain'],
@@ -442,6 +445,8 @@ class SiteController extends Controller
             'php_version' => $applicationData['php_version'] ?? '8.2',
             'reminder' => isset($validated['reminder']) && $validated['reminder'] === 'on',
             'email' => isset($validated['reminder']) && $validated['reminder'] === 'on' ? $validated['email'] : null,
+            // Set expiration time based on system settings
+            'expires_at' => now()->addHours($defaultDeletionHours),
             // Store ServerAvatar application details in separate columns for easier access
             'application_id' => $applicationData['id'] ?? null,
             'system_username' => $credentials['system_username'] ?? null,
@@ -465,6 +470,7 @@ class SiteController extends Controller
                 'database_password' => $databaseInfo['database_password'] ?? null,
                 'database_host' => $databaseInfo['database_host'] ?? 'localhost',
                 'created_at' => now()->toDateTimeString(),
+                'expires_at' => now()->addHours($defaultDeletionHours)->toDateTimeString(),
                 'ssl_installed' => $sslInstalled ?? false,
                 'ssl_type' => $sslType ?? null,
                 'ssl_installation_attempted' => true,
@@ -637,7 +643,47 @@ class SiteController extends Controller
     {
         $site = Site::where('uuid', $uuid)->firstOrFail();
         $site->load('server');
-        return view('admin.sites.show', compact('site'));
+        
+        // Initialize application details variable
+        $applicationDetails = null;
+        
+        // Check if we have the necessary information to fetch application details
+        if ($site->application_id && $site->server_id) {
+            // Log the attempt to fetch application details
+            Log::info('Attempting to fetch application details', [
+                'site_id' => $site->id,
+                'site_uuid' => $site->uuid,
+                'server_id' => $site->server_id,
+                'application_id' => $site->application_id
+            ]);
+            
+            // Fetch application details from ServerAvatar API
+            $response = $this->serverAvatarService->getApplicationDetails(
+                $site->server_id,
+                $site->application_id
+            );
+            
+            if ($response['success']) {
+                $applicationDetails = $response['data'];
+                Log::info('Successfully fetched application details', [
+                    'response_keys' => array_keys($response['data']),
+                    'has_php_settings' => isset($response['data']['php_settings']),
+                    'has_application' => isset($response['data']['application'])
+                ]);
+            } else {
+                // Log the error but don't fail the page load
+                Log::error('Failed to fetch application details: ' . $response['message']);
+            }
+        } else {
+            Log::warning('Cannot fetch application details, missing required data', [
+                'has_application_id' => !empty($site->application_id),
+                'has_server_id' => !empty($site->server_id),
+                'site_id' => $site->id,
+                'site_uuid' => $site->uuid
+            ]);
+        }
+        
+        return view('admin.sites.show', compact('site', 'applicationDetails'));
     }
 
     // Edit and update functionality removed since sites cannot be edited once created
