@@ -3,26 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Services\ServerAvatarService;
+use App\Services\SystemSettingsService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
     protected $serverAvatarService;
+    protected $systemSettings;
 
-    public function __construct(ServerAvatarService $serverAvatarService)
+    public function __construct(ServerAvatarService $serverAvatarService, SystemSettingsService $systemSettings)
     {
         $this->serverAvatarService = $serverAvatarService;
+        $this->systemSettings = $systemSettings;
     }
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $domain = $this->systemSettings->getDomain();
+        return view('admin.dashboard', compact('domain'));
     }
 
-    public function sites()
-    {
-        return view('admin.sites');
-    }
+    // Sites functionality moved to SiteController
 
     public function servers(Request $request)
     {
@@ -37,6 +38,9 @@ class AdminController extends Controller
         if ($result['success']) {
             $apiResponse = $result['data'];
             $servers = $apiResponse['data'] ?? [];
+            
+            // Cache the servers in the session for use in other controllers
+            session(['available_servers' => $servers]);
             
             // Extract pagination info
             if (isset($apiResponse['current_page'])) {
@@ -55,7 +59,10 @@ class AdminController extends Controller
             $errorMessage = $result['message'];
         }
         
-        return view('admin.servers', compact('servers', 'pagination', 'apiConfigured', 'errorMessage'));
+        // Get selected servers
+        $selectedServers = \App\Models\SelectedServer::all();
+        
+        return view('admin.servers', compact('servers', 'selectedServers', 'pagination', 'apiConfigured', 'errorMessage'));
     }
 
     // Settings now handled by SettingsController

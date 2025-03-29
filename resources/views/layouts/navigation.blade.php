@@ -15,7 +15,7 @@
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.sites')" :active="request()->routeIs('admin.sites')">
+                    <x-nav-link :href="route('admin.sites.index')" :active="request()->routeIs('admin.sites.*')">
                         {{ __('Sites') }}
                     </x-nav-link>
                     <x-nav-link :href="route('admin.servers')" :active="request()->routeIs('admin.servers')">
@@ -79,7 +79,7 @@
             <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                 {{ __('Admin Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('admin.sites')" :active="request()->routeIs('admin.sites')">
+            <x-responsive-nav-link :href="route('admin.sites.index')" :active="request()->routeIs('admin.sites.*')">
                 {{ __('Sites') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('admin.servers')" :active="request()->routeIs('admin.servers')">

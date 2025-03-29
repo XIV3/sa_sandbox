@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\ServerManagementController;
+use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,8 +14,24 @@ Route::get('/', function () {
 // Admin Routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/sites', [AdminController::class, 'sites'])->name('admin.sites');
+    Route::get('/sites', [SiteController::class, 'index'])->name('admin.sites.index');
+    Route::resource('sites', SiteController::class)->except(['index'])->names([
+        'create' => 'admin.sites.create',
+        'store' => 'admin.sites.store',
+        'show' => 'admin.sites.show',
+        'edit' => 'admin.sites.edit',
+        'update' => 'admin.sites.update',
+        'destroy' => 'admin.sites.destroy',
+    ]);
     Route::get('/servers', [AdminController::class, 'servers'])->name('admin.servers');
+    
+    // Server Management Routes
+    Route::prefix('server-management')->name('admin.server-management.')->group(function () {
+        Route::get('/selected-servers', [ServerManagementController::class, 'getSelectedServers'])->name('get-selected');
+        Route::post('/add-server', [ServerManagementController::class, 'addServer'])->name('add');
+        Route::post('/remove-server', [ServerManagementController::class, 'removeServer'])->name('remove');
+    });
+    
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');

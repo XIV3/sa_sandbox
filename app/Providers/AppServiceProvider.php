@@ -14,7 +14,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register the SystemSettingsService as a singleton
+        $this->app->singleton(\App\Services\SystemSettingsService::class);
+        
+        // Register a short alias for the service
+        $this->app->alias(\App\Services\SystemSettingsService::class, 'system-settings');
     }
 
     /**

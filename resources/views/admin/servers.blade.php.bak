@@ -29,6 +29,9 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Web Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Database Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cores</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">CPU Usage</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">RAM Usage</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Disk Usage</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
@@ -41,36 +44,88 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $server->name }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $server->ip_address }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                        @if($server->connection_status == 'connected')
+                                        @php
+                                            $serverData = $server->server_data;
+                                            $isConnected = $serverData && isset($serverData['agent_status']) && $serverData['agent_status'] == '1';
+                                        @endphp
+                                        @if($isConnected)
                                         <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                                             <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
                                                 <circle cx="4" cy="4" r="3" />
                                             </svg>
                                             Connected
                                         </span>
-                                        @elseif($server->connection_status == 'disconnected')
+                                        @else
                                         <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
                                             <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-red-400" fill="currentColor" viewBox="0 0 8 8">
                                                 <circle cx="4" cy="4" r="3" />
                                             </svg>
                                             Disconnected
                                         </span>
-                                        @else
-                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400" fill="currentColor" viewBox="0 0 8 8">
-                                                <circle cx="4" cy="4" r="3" />
-                                            </svg>
-                                            Unknown
-                                        </span>
                                         @endif
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst($server->web_server) ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst($server->database_type) ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $server->cores ?? 'N/A' }}</td>
+                                    
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if(!is_null($server->load_average))
+                                        <div class="flex items-center">
+                                            @php
+                                                $loadPercentage = $server->load_average;
+                                                $loadColor = $loadPercentage > 80 ? 'bg-red-600' : ($loadPercentage > 60 ? 'bg-yellow-600' : 'bg-blue-600');
+                                            @endphp
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div class="{{ $loadColor }} h-2.5 rounded-full" style="width: {{ $loadPercentage }}%"></div>
+                                            </div>
+                                            <span class="ml-2">{{ $loadPercentage }}%</span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center">
+                                            <span class="text-gray-400">N/A</span>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if(!is_null($server->memory_usage))
+                                        <div class="flex items-center">
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                @php
+                                                    $memoryPercentage = $server->memory_usage;
+                                                    $memoryColor = $memoryPercentage > 80 ? 'bg-red-600' : ($memoryPercentage > 60 ? 'bg-yellow-600' : 'bg-blue-600');
+                                                @endphp
+                                                <div class="{{ $memoryColor }} h-2.5 rounded-full" style="width: {{ $memoryPercentage }}%"></div>
+                                            </div>
+                                            <span class="ml-2">{{ $memoryPercentage }}%</span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center">
+                                            <span class="text-gray-400">N/A</span>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if(!is_null($server->disk_usage))
+                                        <div class="flex items-center">
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                @php
+                                                    $diskPercentage = $server->disk_usage;
+                                                    $diskColor = $diskPercentage > 80 ? 'bg-red-600' : ($diskPercentage > 60 ? 'bg-yellow-600' : 'bg-blue-600');
+                                                @endphp
+                                                <div class="{{ $diskColor }} h-2.5 rounded-full" style="width: {{ $diskPercentage }}%"></div>
+                                            </div>
+                                            <span class="ml-2">{{ $diskPercentage }}%</span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center">
+                                            <span class="text-gray-400">N/A</span>
+                                        </div>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr class="empty-row">
-                                    <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="11" class="px-3 py-8 text-center text-sm text-gray-500">
                                         No servers selected. Add servers from the list below.
                                     </td>
                                 </tr>
@@ -141,6 +196,9 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Web Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Database Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cores</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">CPU Usage</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">RAM Usage</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Disk Usage</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
@@ -178,10 +236,68 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {{ isset($server['cores']) && is_numeric($server['cores']) ? $server['cores'] : 'N/A' }}
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if(isset($server['latest_monitor_log']) && isset($server['latest_monitor_log']['load_average']))
+                                        <div class="flex items-center">
+                                            @php
+                                                // The API already returns load average as a percentage
+                                                $loadPercentage = is_numeric($server['latest_monitor_log']['load_average']) ? 
+                                                    min(100, max(0, floatval($server['latest_monitor_log']['load_average']))) : 0;
+                                                $loadColor = $loadPercentage > 80 ? 'bg-red-600' : ($loadPercentage > 60 ? 'bg-yellow-600' : 'bg-blue-600');
+                                            @endphp
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div class="{{ $loadColor }} h-2.5 rounded-full" style="width: {{ $loadPercentage }}%"></div>
+                                            </div>
+                                            <span class="ml-2">{{ $loadPercentage }}%</span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center">
+                                            <span class="text-gray-400">N/A</span>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if(isset($server['latest_monitor_log']) && isset($server['latest_monitor_log']['memory_usage']))
+                                        <div class="flex items-center">
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                @php
+                                                    $memoryPercentage = is_numeric($server['latest_monitor_log']['memory_usage']) ? floatval($server['latest_monitor_log']['memory_usage']) : 0;
+                                                    $memoryPercentage = min(100, max(0, round($memoryPercentage)));
+                                                    $memoryColor = $memoryPercentage > 80 ? 'bg-red-600' : ($memoryPercentage > 60 ? 'bg-yellow-600' : 'bg-blue-600');
+                                                @endphp
+                                                <div class="{{ $memoryColor }} h-2.5 rounded-full" style="width: {{ $memoryPercentage }}%"></div>
+                                            </div>
+                                            <span class="ml-2">{{ $memoryPercentage }}%</span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center">
+                                            <span class="text-gray-400">N/A</span>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if(isset($server['latest_monitor_log']) && isset($server['latest_monitor_log']['disk_usage']))
+                                        <div class="flex items-center">
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                @php
+                                                    $diskPercentage = is_numeric($server['latest_monitor_log']['disk_usage']) ? floatval($server['latest_monitor_log']['disk_usage']) : 0;
+                                                    $diskPercentage = min(100, max(0, round($diskPercentage)));
+                                                    $diskColor = $diskPercentage > 80 ? 'bg-red-600' : ($diskPercentage > 60 ? 'bg-yellow-600' : 'bg-blue-600');
+                                                @endphp
+                                                <div class="{{ $diskColor }} h-2.5 rounded-full" style="width: {{ $diskPercentage }}%"></div>
+                                            </div>
+                                            <span class="ml-2">{{ $diskPercentage }}%</span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center">
+                                            <span class="text-gray-400">N/A</span>
+                                        </div>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr class="empty-row">
-                                    <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="11" class="px-3 py-8 text-center text-sm text-gray-500">
                                         @if($apiConfigured && !$errorMessage)
                                             No servers available.
                                         @else
