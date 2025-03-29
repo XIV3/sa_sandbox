@@ -22,10 +22,13 @@
                                     <th scope="col" class="relative py-3.5 pl-4 pr-3 sm:pl-6">
                                         <span class="sr-only">Actions</span>
                                     </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Server ID</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Server Name</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">IP Address</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Connection Status</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Hosted Sites</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Web Server</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Database Server</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cores</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">CPU Usage</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">RAM Usage</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Disk Usage</th>
@@ -37,6 +40,7 @@
                                     <td class="relative whitespace-nowrap py-4 pl-4 pr-3 text-left text-sm font-medium sm:pl-6">
                                         <button type="button" class="text-red-600 hover:text-red-900">Remove</button>
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">12345</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">Web Server 1</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">192.168.1.101</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -47,12 +51,9 @@
                                             Connected
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        <div class="flex items-center">
-                                            <span class="text-sm font-medium text-gray-900">12</span>
-                                            <span class="ml-1 text-sm text-gray-500">sites</span>
-                                        </div>
-                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Nginx</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">MySQL</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">4</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <div class="flex items-center">
                                             <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -83,6 +84,7 @@
                                     <td class="relative whitespace-nowrap py-4 pl-4 pr-3 text-left text-sm font-medium sm:pl-6">
                                         <button type="button" class="text-red-600 hover:text-red-900">Remove</button>
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">67890</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">Database Server</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">192.168.1.102</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -93,12 +95,9 @@
                                             Connected
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        <div class="flex items-center">
-                                            <span class="text-sm font-medium text-gray-900">8</span>
-                                            <span class="ml-1 text-sm text-gray-500">sites</span>
-                                        </div>
-                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Apache</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">MariaDB</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">8</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <div class="flex items-center">
                                             <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -133,7 +132,15 @@
             <!-- All Available Servers Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">All Available Servers</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">All Available Servers</h3>
+                        <a href="{{ route('admin.servers') }}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Refresh
+                        </a>
+                    </div>
                     
                     @if(!$apiConfigured)
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
@@ -175,9 +182,12 @@
                                     <th scope="col" class="relative py-3.5 pl-4 pr-3 sm:pl-6">
                                         <span class="sr-only">Actions</span>
                                     </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Server ID</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Server Name</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">IP Address</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Connection Status</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Web Server</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Database Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cores</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">CPU Usage</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">RAM Usage</th>
@@ -190,6 +200,7 @@
                                     <td class="relative whitespace-nowrap py-4 pl-4 pr-3 text-left text-sm font-medium sm:pl-6">
                                         <button type="button" class="text-indigo-600 hover:text-indigo-900">Add</button>
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $server['id'] ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $server['name'] }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $server['ip'] }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -208,6 +219,12 @@
                                             Disconnected
                                         </span>
                                         @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ isset($server['web_server']) ? ucfirst($server['web_server']) : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ isset($server['database_type']) ? ucfirst($server['database_type']) : 'N/A' }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {{ isset($server['cores']) && is_numeric($server['cores']) ? $server['cores'] : 'N/A' }}
@@ -273,7 +290,7 @@
                                 </tr>
                                 @empty
                                 <tr class="empty-row">
-                                    <td colspan="7" class="px-3 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="11" class="px-3 py-8 text-center text-sm text-gray-500">
                                         @if($apiConfigured && !$errorMessage)
                                             No servers available.
                                         @else
