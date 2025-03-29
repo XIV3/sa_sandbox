@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
     Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('admin.settings.test-email');
+    Route::post('/settings/test-serveravatar-api', [SettingsController::class, 'testServerAvatarApi'])->name('admin.settings.test-serveravatar-api');
     
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

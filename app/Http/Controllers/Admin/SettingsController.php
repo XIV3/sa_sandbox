@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
@@ -161,6 +162,76 @@ class SettingsController extends Controller
             }
             
             return redirect()->route('admin.settings.index')->with('error', $errorMessage);
+        }
+    }
+    
+    /**
+     * Test ServerAvatar API connection using the configured settings.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function testServerAvatarApi(Request $request)
+    {
+        // Get all ServerAvatar API settings
+        $apiSettings = SystemSetting::whereIn('meta_key', [
+            'api_url', 'api_key', 'organisation_id'
+        ])->pluck('meta_value', 'meta_key')->toArray();
+        
+        // Check if all required settings are available
+        $requiredSettings = ['api_url', 'api_key', 'organisation_id'];
+        foreach ($requiredSettings as $setting) {
+            if (!isset($apiSettings[$setting]) || empty($apiSettings[$setting])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please complete all ServerAvatar API configuration fields before testing the connection.'
+                ]);
+            }
+        }
+        
+        try {
+            // Make API request to get organization details
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $apiSettings['api_key']
+            ])->get($apiSettings['api_url'] . '/organizations/' . $apiSettings['organisation_id']);
+            
+            // Check for successful response
+            if ($response->successful() && isset($response->json()['organization'])) {
+                $org = $response->json()['organization'];
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Connection successful! Connected to organization: ' . $org['name'],
+                    'data' => [
+                        'organization_name' => $org['name'],
+                        'organization_id' => $org['id']
+                    ]
+                ]);
+            } else {
+                // Handle API error response
+                $errorMessage = 'API connection failed. ';
+                if ($response->status() === 401 || $response->status() === 403) {
+                    $errorMessage .= 'Authentication failed. Please check your API key.';
+                } elseif ($response->status() === 404) {
+                    $errorMessage .= 'Organization not found. Please check your Organization ID.';
+                } else {
+                    $errorMessage .= 'Server returned status code: ' . $response->status();
+                    if (isset($response->json()['message'])) {
+                        $errorMessage .= ' - ' . $response->json()['message'];
+                    }
+                }
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Connection failed: ' . $e->getMessage()
+            ]);
         }
     }
 }
