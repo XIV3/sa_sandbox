@@ -160,7 +160,7 @@
 </section>
 
 <!-- Open Source Section -->
-<section class="py-5 my-5" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(14, 165, 233, 0.03) 100%);">
+<section style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(14, 165, 233, 0.03) 100%); padding-top: 100px; padding-bottom: 100px;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 pe-lg-5 mb-5 mb-lg-0">

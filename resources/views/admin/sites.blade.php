@@ -128,7 +128,7 @@
                                 @empty
                                 <tr>
                                     <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">
-                                        No sites found. <a href="#" @click.prevent="$dispatch('open-modal')" class="text-indigo-600 hover:text-indigo-900">Create your first site</a>.
+                                        No sites found. <button x-data @click="$dispatch('open-modal')" class="text-indigo-600 hover:text-indigo-900 bg-transparent p-0 border-0 inline underline">Create your first site</button>.
                                     </td>
                                 </tr>
                                 @endforelse
@@ -290,7 +290,7 @@
                                         </svg>
                                     </span>
                                     <input type="text" name="subdomain" id="subdomain" value="{{ old('subdomain') }}" required class="block w-full min-w-0 flex-1 rounded-none border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm {{ $errors->has('subdomain') ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' : '' }}" placeholder="yoursite">
-                                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">.{{ $domain }}</span>
+                                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">.{{ App\Models\SystemSetting::where('meta_key', 'domain')->first()->meta_value ?? 'example.com' }}</span>
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500">Only lowercase letters, numbers and hyphens allowed.</p>
                                 <p 

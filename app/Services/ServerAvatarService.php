@@ -205,7 +205,7 @@ class ServerAvatarService
             ],
             'php_version' => '8.2', // String format per example
             'www' => 0,
-            'email' => 'admin@example.com',
+            'email' => 'admin@' . $hostname, // Use proper domain instead of example.com
             'title' => 'WordPress Site',
             'username' => $wpUsername,
             'password' => $wpPassword,

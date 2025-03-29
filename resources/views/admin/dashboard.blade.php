@@ -506,20 +506,29 @@
     </div>
     
     <!-- Create Site Modal -->
-    <div x-data="{ open: false }" x-show="open" @open-modal.window="open = true" @keydown.escape.window="open = false" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+    <div 
+        x-data="{ 
+            open: {{ session('openCreateModal') || $errors->any() ? 'true' : 'false' }},
+            loading: false,
+            sendEmail: {{ old('reminder') ? 'true' : 'false' }},
+            setUserEmail() {
+                if (this.sendEmail && this.$refs.emailInput && !this.$refs.emailInput.value) {
+                    this.$refs.emailInput.value = '{{ auth()->user()->email ?? '' }}';
+                }
+            }
+        }" 
+        x-show="open" 
+        @open-modal.window="open = true" 
+        @keydown.escape.window="open = false" 
+        class="fixed inset-0 z-50 overflow-y-auto" 
+        x-cloak
+    >
         <!-- Background overlay -->
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" x-show="open"></div>
         
         <!-- Modal panel -->
         <div class="relative min-h-screen flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-xl w-full max-h-full overflow-hidden" 
-                x-show="open"
-                x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                x-transition:leave="ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            <div class="bg-white rounded-lg shadow-xl max-w-xl w-full max-h-full overflow-hidden" x-show="open">
                 
                 <!-- Modal header -->
                 <div class="px-6 py-4 border-b bg-gray-50">
@@ -533,11 +542,110 @@
                     </div>
                 </div>
                 
-                <!-- Modal content -->
-                <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
+                <!-- Modal content with form -->
+                <form 
+                    x-data="{ 
+                        submitForm(event) {
+                            event.preventDefault();
+                            loading = true;
+                            
+                            // Reset error messages
+                            this.errors = {};
+                            this.errorMessage = '';
+                            
+                            const form = event.target;
+                            const formData = new FormData(form);
+                            
+                            fetch('{{ route('admin.sites.store') }}', {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                loading = false;
+                                
+                                if (data.success) {
+                                    // Success! Redirect to the site details page
+                                    window.location.href = data.redirect;
+                                } else {
+                                    // Handle validation errors or other issues
+                                    if (data.errors) {
+                                        this.errors = data.errors;
+                                    }
+                                    
+                                    if (data.message) {
+                                        this.errorMessage = data.message;
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                loading = false;
+                                this.errorMessage = 'An unexpected error occurred. Please try again.';
+                                console.error('Error:', error);
+                            });
+                        },
+                        errors: {},
+                        errorMessage: ''
+                    }"
+                    @submit="submitForm"
+                    method="POST">
+                    @csrf
                     
-                    <form>
-                        @csrf
+                    <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
+                        <!-- AJAX Error Message -->
+                        <div 
+                            x-show="errorMessage" 
+                            x-cloak
+                            class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4" 
+                            role="alert"
+                        >
+                            <p x-text="errorMessage"></p>
+                        </div>
+                        
+                        <!-- AJAX Validation Errors -->
+                        <div 
+                            x-show="Object.keys(errors).length > 0" 
+                            x-cloak
+                            class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4" 
+                            role="alert"
+                        >
+                            <p class="font-bold">Please fix the following errors:</p>
+                            <ul class="list-disc list-inside">
+                                <template x-for="(fieldErrors, field) in errors" :key="field">
+                                    <template x-for="error in fieldErrors" :key="error">
+                                        <li x-text="error"></li>
+                                    </template>
+                                </template>
+                            </ul>
+                        </div>
+                        
+                        <!-- Legacy server-side messages (for non-JS fallback) -->
+                        @if(session('success') && session('openCreateModal'))
+                        <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+                            <p>{{ session('success') }}</p>
+                        </div>
+                        @endif
+                        
+                        @if(session('error'))
+                        <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+                            <p>{{ session('error') }}</p>
+                        </div>
+                        @endif
+                        
+                        @if ($errors->any())
+                        <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+                            <p class="font-bold">Please fix the following errors:</p>
+                            <ul class="list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+                        
                         <div class="space-y-6">
                             <div>
                                 <label for="subdomain" class="block text-sm font-medium text-gray-700 mb-2">Choose Your Subdomain</label>
@@ -547,32 +655,33 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                         </svg>
                                     </span>
-                                    <input type="text" name="subdomain" id="subdomain" class="block w-full min-w-0 flex-1 rounded-none border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="yoursite">
-                                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">.{{ $domain }}</span>
+                                    <input type="text" name="subdomain" id="subdomain" value="{{ old('subdomain') }}" required class="block w-full min-w-0 flex-1 rounded-none border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm {{ $errors->has('subdomain') ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' : '' }}" placeholder="yoursite">
+                                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">.{{ App\Models\SystemSetting::where('meta_key', 'domain')->first()->meta_value ?? 'example.com' }}</span>
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500">Only lowercase letters, numbers and hyphens allowed.</p>
+                                <p 
+                                    x-show="errors.subdomain && errors.subdomain.length > 0" 
+                                    x-text="errors.subdomain && errors.subdomain[0]" 
+                                    class="mt-1 text-xs text-red-600"
+                                ></p>
+                                @error('subdomain')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                             
-                            <div x-data="{ 
-                                sendEmail: false,
-                                setUserEmail() {
-                                    if (this.sendEmail) {
-                                        this.$refs.emailInput.value = '{{ auth()->user()->email ?? '' }}';
-                                    }
-                                }
-                            }">
+                            <div>
                                 <div class="flex items-start mb-3">
                                     <div class="flex h-5 items-center">
-                                        <input id="send_email" name="send_email" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
+                                        <input id="reminder" name="reminder" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
                                               x-model="sendEmail"
                                               @change="setUserEmail()">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="send_email" class="font-medium text-gray-700">Send me site info and remind me before delete</label>
+                                        <label for="reminder" class="font-medium text-gray-700">Send me site info and remind me before delete</label>
                                     </div>
                                 </div>
                                 
-                                <div x-show="sendEmail" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
+                                <div x-show="sendEmail">
                                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                                     <div class="mt-1 flex rounded-md shadow-sm">
                                         <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 pl-3 pr-1 text-gray-500">
@@ -580,26 +689,43 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
                                         </span>
-                                        <input type="email" name="email" id="email" x-ref="emailInput" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="your@email.com">
+                                        <input type="email" name="email" id="email" x-ref="emailInput" value="{{ old('email') }}" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm {{ $errors->has('email') ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' : '' }}" placeholder="your@email.com">
                                     </div>
                                     <p class="mt-2 text-xs text-gray-500">We'll send login details and a reminder before your site is deleted.</p>
+                                    <p 
+                                        x-show="errors.email && errors.email.length > 0" 
+                                        x-text="errors.email && errors.email[0]" 
+                                        class="mt-1 text-xs text-red-600"
+                                    ></p>
+                                    @error('email')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                
+                                <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
+                                    <p class="text-sm">Creating a WordPress site may take 1-2 minutes. Please wait while we set up your site.</p>
                                 </div>
                             </div>
-                            
                         </div>
-                    </form>
+                    </div>
                     
-                </div>
-                
-                <!-- Modal footer -->
-                <div class="px-6 py-4 bg-gray-50 border-t">
-                    <button type="button" class="inline-flex w-full items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <span>Create Throwaway Site</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                    </button>
-                </div>
+                    <!-- Submit button in form footer -->
+                    <div class="px-6 py-4 bg-gray-50 border-t">
+                        <button type="submit"
+                            :disabled="loading"
+                            class="inline-flex w-full items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">
+                            <span x-show="!loading">Create WordPress Site</span>
+                            <span x-show="loading">Creating site...</span>
+                            <svg x-show="!loading" xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                            <svg x-show="loading" class="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

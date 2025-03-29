@@ -94,8 +94,8 @@ class Site extends Model
      */
     public function getSubdomainAttribute(): string
     {
-        $domainParts = explode('.', $this->domain);
-        if (count($domainParts) > 2) {
+        $domainParts = explode('.', $this->domain ?? '');
+        if (!empty($domainParts)) {
             return $domainParts[0];
         }
         return '';

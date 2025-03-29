@@ -62,6 +62,12 @@ class SiteController extends Controller
         $servers = SelectedServer::all();
         $domain = $this->systemSettings->getDomain();
         
+        // Debug
+        \Illuminate\Support\Facades\Log::debug('Domain being passed to sites view', [
+            'domain' => $domain,
+            'from_settings' => $this->systemSettings->get('domain')
+        ]);
+        
         return view('admin.sites', compact('sites', 'servers', 'domain'));
     }
 
@@ -95,7 +101,19 @@ class SiteController extends Controller
                 ->with('error', 'Subdomain is required');
         }
         
-        $domain = $subdomain . '.' . $this->systemSettings->getDomain();
+        // Force clear domain cache to always get the fresh value
+        $this->systemSettings->clearCache('domain');
+        
+        // Get the system domain setting directly from the database
+        $systemDomain = $this->systemSettings->getUncachedDomain();
+        Log::debug('Domain information', [
+            'subdomain' => $subdomain,
+            'system_domain' => $systemDomain,
+            'combined_domain' => $subdomain . '.' . $systemDomain,
+            'cache_cleared' => true
+        ]);
+        
+        $domain = $subdomain . '.' . $systemDomain;
         
         $validator = validator($request->all(), [
             'subdomain' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',

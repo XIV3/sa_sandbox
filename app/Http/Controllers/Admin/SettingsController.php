@@ -57,6 +57,9 @@ class SettingsController extends Controller
         // Define checkbox settings that need special handling
         $checkboxSettings = ['allow_site_creation', 'mail_encryption'];
         
+        // Add app/Services/SystemSettingsService.php instance to clear caches
+        $systemSettingsService = app(\App\Services\SystemSettingsService::class);
+        
         // First, handle all non-checkbox settings
         foreach ($settings as $key => $value) {
             if (!in_array($key, $checkboxSettings)) {
@@ -64,6 +67,17 @@ class SettingsController extends Controller
                     ['meta_key' => $key],
                     ['meta_value' => $value]
                 );
+                
+                // Clear cache for this key to ensure fresh value
+                $systemSettingsService->clearCache($key);
+                
+                // Special logging for domain changes
+                if ($key === 'domain') {
+                    \Illuminate\Support\Facades\Log::info('Domain setting updated', [
+                        'new_value' => $value,
+                        'cache_cleared' => true
+                    ]);
+                }
             }
         }
         
@@ -75,7 +89,13 @@ class SettingsController extends Controller
                 ['meta_key' => $checkboxKey],
                 ['meta_value' => $value]
             );
+            
+            // Clear cache for this key too
+            $systemSettingsService->clearCache($checkboxKey);
         }
+        
+        // Flush any domain-related cache specifically
+        $systemSettingsService->clearCache('domain');
         
         return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully');
     }
