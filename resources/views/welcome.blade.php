@@ -56,7 +56,7 @@
                 <div class="form-container">
                     <div class="text-center mb-4">
                         <div class="badge bg-accent-color text-white px-3 py-2 rounded-pill mb-3">No Credit Card Required</div>
-                        <h3 class="fw-bold mb-1">Create Your Throwaway Site</h3>
+                        <h3 class="fw-bold mb-1">Create WordPress with one-click!</h3>
                         <p class="text-secondary">Ready in 30 seconds • Auto-deletes in 24 Hours</p>
                     </div>
                     
