@@ -11,18 +11,28 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Debug route for form submission testing
+if (config('app.debug')) {
+    Route::post('/debug-form', function (\Illuminate\Http\Request $request) {
+        \Illuminate\Support\Facades\Log::debug('Debug form submission', [
+            'request' => $request->all(),
+            'ip' => $request->ip(),
+            'method' => $request->method(),
+            'url' => $request->url()
+        ]);
+        return response()->json(['success' => true, 'data' => $request->all()]);
+    })->name('debug.form');
+}
+
 // Admin Routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/sites', [SiteController::class, 'index'])->name('admin.sites.index');
-    Route::resource('sites', SiteController::class)->except(['index'])->names([
-        'create' => 'admin.sites.create',
-        'store' => 'admin.sites.store',
-        'show' => 'admin.sites.show',
-        'edit' => 'admin.sites.edit',
-        'update' => 'admin.sites.update',
-        'destroy' => 'admin.sites.destroy',
-    ]);
+    // Custom routes for sites to use UUID for viewing
+    Route::get('/sites/create', [SiteController::class, 'create'])->name('admin.sites.create');
+    Route::post('/sites', [SiteController::class, 'store'])->name('admin.sites.store');
+    Route::get('/sites/{uuid}', [SiteController::class, 'show'])->name('admin.sites.show');
+    Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('admin.sites.destroy');
     Route::get('/servers', [AdminController::class, 'servers'])->name('admin.servers');
     
     // Server Management Routes

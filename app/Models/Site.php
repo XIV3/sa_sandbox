@@ -28,6 +28,16 @@ class Site extends Model
         'site_data',
         'reminder',
         'email',
+        'application_id',
+        'system_username',
+        'wp_username',
+        'database_name',
+        'cloudflare_record_id',
+        'has_dns_record',
+        'database_id',
+        'database_username',
+        'database_password',
+        'database_host',
     ];
 
     /**
@@ -38,6 +48,7 @@ class Site extends Model
     protected $casts = [
         'site_data' => 'array',
         'reminder' => 'boolean',
+        'has_dns_record' => 'boolean',
     ];
 
     /**
@@ -65,5 +76,19 @@ class Site extends Model
     public function server(): BelongsTo
     {
         return $this->belongsTo(SelectedServer::class, 'selected_server_id');
+    }
+    
+    /**
+     * Get the subdomain portion of the domain
+     *
+     * @return string
+     */
+    public function getSubdomainAttribute(): string
+    {
+        $domainParts = explode('.', $this->domain);
+        if (count($domainParts) > 2) {
+            return $domainParts[0];
+        }
+        return '';
     }
 }

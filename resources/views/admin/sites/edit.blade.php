@@ -6,7 +6,7 @@
                     {{ __('Edit Site') }}
                 </h2>
                 <p class="mt-1 text-gray-600 text-sm">
-                    Update throwaway site details
+                    Update website details
                 </p>
             </div>
             <div>
@@ -63,7 +63,7 @@
                             </div>
                             
                             <div x-data="{ 
-                                sendEmail: {{ isset($notificationEmail) ? 'true' : 'false' }},
+                                sendEmail: {{ isset($notificationEmail) || $site->reminder ? 'true' : 'false' }},
                                 setUserEmail() {
                                     if (this.sendEmail && !this.$refs.emailInput.value) {
                                         this.$refs.emailInput.value = '{{ auth()->user()->email ?? '' }}';
@@ -72,12 +72,13 @@
                             }">
                                 <div class="flex items-start mb-3">
                                     <div class="flex h-5 items-center">
-                                        <input id="send_email" name="send_email" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
+                                        <input id="reminder" name="reminder" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
                                               x-model="sendEmail"
-                                              @change="setUserEmail()">
+                                              @change="setUserEmail()"
+                                              {{ $site->reminder ? 'checked' : '' }}>
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="send_email" class="font-medium text-gray-700">Send me site info and remind me before delete</label>
+                                        <label for="reminder" class="font-medium text-gray-700">Send me site info and remind me before delete</label>
                                     </div>
                                 </div>
                                 
