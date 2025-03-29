@@ -703,6 +703,55 @@ class SiteController extends Controller
         
         return view('admin.sites.show', compact('site', 'applicationDetails'));
     }
+    
+    /**
+     * Update a site's public visibility status
+     */
+    public function togglePublic(Request $request, Site $site)
+    {
+        $validated = $request->validate([
+            'is_public' => 'required|boolean',
+        ]);
+        
+        $site->update([
+            'is_public' => $validated['is_public'],
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'is_public' => $site->is_public,
+        ]);
+    }
+    
+    /**
+     * Display the public view of a site
+     */
+    public function publicShow($uuid)
+    {
+        $site = Site::where('uuid', $uuid)
+                    ->where('is_public', true)
+                    ->firstOrFail();
+                    
+        $site->load('server');
+        
+        // Initialize application details variable
+        $applicationDetails = null;
+        
+        // Check if we have the necessary information to fetch application details
+        if ($site->application_id && $site->server_id) {
+            // Fetch application details from ServerAvatar API
+            $response = $this->serverAvatarService->getApplicationDetails(
+                $site->server_id,
+                $site->application_id
+            );
+            
+            if ($response['success']) {
+                $applicationDetails = $response['data'];
+            }
+        }
+        
+        return view('sites.public.show', compact('site', 'applicationDetails'));
+    }
 
     // Edit and update functionality removed since sites cannot be edited once created
 

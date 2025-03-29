@@ -26,6 +26,7 @@ class Site extends Model
         'php_version',
         'server_id',
         'status',
+        'is_public',
         'site_data',
         'reminder',
         'email',
@@ -51,6 +52,7 @@ class Site extends Model
         'site_data' => 'array',
         'reminder' => 'boolean',
         'has_dns_record' => 'boolean',
+        'is_public' => 'boolean',
         'expires_at' => 'datetime',
     ];
 

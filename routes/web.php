@@ -11,6 +11,9 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Public site details route
+Route::get('/s/{uuid}', [SiteController::class, 'publicShow'])->name('sites.public.show');
+
 // Debug route for form submission testing
 if (config('app.debug')) {
     Route::post('/debug-form', function (\Illuminate\Http\Request $request) {
@@ -32,6 +35,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::get('/sites/create', [SiteController::class, 'create'])->name('admin.sites.create');
     Route::post('/sites', [SiteController::class, 'store'])->name('admin.sites.store');
     Route::get('/sites/{uuid}', [SiteController::class, 'show'])->name('admin.sites.show');
+    Route::post('/sites/{site}/toggle-public', [SiteController::class, 'togglePublic'])->name('admin.sites.toggle-public');
     Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('admin.sites.destroy');
     Route::get('/servers', [AdminController::class, 'servers'])->name('admin.servers');
     
