@@ -26,6 +26,8 @@ class Site extends Model
         'server_id',
         'status',
         'site_data',
+        'reminder',
+        'email',
     ];
 
     /**
@@ -35,6 +37,7 @@ class Site extends Model
      */
     protected $casts = [
         'site_data' => 'array',
+        'reminder' => 'boolean',
     ];
 
     /**
