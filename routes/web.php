@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
+    Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('admin.settings.test-email');
     
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

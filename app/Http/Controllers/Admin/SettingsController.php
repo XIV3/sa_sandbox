@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
@@ -76,5 +77,90 @@ class SettingsController extends Controller
         }
         
         return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully');
+    }
+    
+    /**
+     * Send a test email using the configured SMTP settings.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function testEmail(Request $request)
+    {
+        // Get all mail settings
+        $mailSettings = SystemSetting::whereIn('meta_key', [
+            'mail_host', 'mail_port', 'mail_username', 'mail_password',
+            'mail_from_name', 'mail_from_address', 'mail_encryption'
+        ])->pluck('meta_value', 'meta_key')->toArray();
+        
+        // Check if all required settings are available
+        $requiredSettings = ['mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_from_name', 'mail_from_address'];
+        foreach ($requiredSettings as $setting) {
+            if (!isset($mailSettings[$setting]) || empty($mailSettings[$setting])) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Please complete all SMTP configuration fields before sending a test email.'
+                    ]);
+                }
+                
+                return redirect()->route('admin.settings.index')
+                    ->with('error', 'Please complete all SMTP configuration fields before sending a test email.');
+            }
+        }
+        
+        try {
+            // Manually configure mail settings for this request
+            config([
+                'mail.default' => 'smtp',
+                'mail.mailers.smtp.host' => $mailSettings['mail_host'],
+                'mail.mailers.smtp.port' => $mailSettings['mail_port'],
+                'mail.mailers.smtp.username' => $mailSettings['mail_username'],
+                'mail.mailers.smtp.password' => $mailSettings['mail_password'],
+                'mail.mailers.smtp.encryption' => isset($mailSettings['mail_encryption']) && $mailSettings['mail_encryption'] == '1' ? 'tls' : null,
+                'mail.from.address' => $mailSettings['mail_from_address'],
+                'mail.from.name' => $mailSettings['mail_from_name'],
+            ]);
+            
+            // Send test email to the authenticated user
+            $user = $request->user();
+            
+            // Create a detailed test email message
+            $message = "This is a test email from your application to verify that your SMTP settings are correctly configured.\n\n";
+            $message .= "SMTP Configuration:\n";
+            $message .= "- Host: " . $mailSettings['mail_host'] . "\n";
+            $message .= "- Port: " . $mailSettings['mail_port'] . "\n";
+            $message .= "- Encryption: " . (isset($mailSettings['mail_encryption']) && $mailSettings['mail_encryption'] == '1' ? 'TLS' : 'None') . "\n";
+            $message .= "- From: " . $mailSettings['mail_from_name'] . " <" . $mailSettings['mail_from_address'] . ">\n\n";
+            $message .= "If you received this email, your SMTP configuration is working properly!";
+            
+            Mail::raw($message, function ($mail) use ($user, $mailSettings) {
+                $mail->to($user->email);
+                $mail->subject('SMTP Configuration Test');
+            });
+            
+            $successMessage = 'Test email sent successfully! Please check your inbox at ' . $user->email;
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage
+                ]);
+            }
+            
+            return redirect()->route('admin.settings.index')->with('success', $successMessage);
+            
+        } catch (\Exception $e) {
+            $errorMessage = 'Failed to send test email: ' . $e->getMessage();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ]);
+            }
+            
+            return redirect()->route('admin.settings.index')->with('error', $errorMessage);
+        }
     }
 }
