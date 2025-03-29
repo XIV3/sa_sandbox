@@ -129,13 +129,16 @@
                             </div>
                             
                             <div class="flex justify-end">
-                                <button type="button" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mr-3">
+                                <button type="button" id="testCloudflareApiBtn" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mr-3">
                                     Test Connection
                                 </button>
                                 <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     Save Settings
                                 </button>
                             </div>
+                            
+                            <!-- Test Cloudflare connection status message -->
+                            <div id="testCloudflareApiStatus" class="mt-3 hidden"></div>
                         </div>
                     </form>
                 </div>
@@ -384,6 +387,69 @@
                         
                         // Display error message
                         testServerAvatarApiStatus.innerHTML = '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3" role="alert"><p>An error occurred while testing the API connection.</p></div>';
+                    });
+                });
+            }
+            
+            // Cloudflare API Test Connection functionality
+            const testCloudflareApiBtn = document.getElementById('testCloudflareApiBtn');
+            const testCloudflareApiStatus = document.getElementById('testCloudflareApiStatus');
+            
+            if (testCloudflareApiBtn) {
+                testCloudflareApiBtn.addEventListener('click', function() {
+                    // Show loading state
+                    testCloudflareApiBtn.disabled = true;
+                    testCloudflareApiBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Testing connection...';
+                    
+                    // Display status container
+                    testCloudflareApiStatus.classList.remove('hidden');
+                    testCloudflareApiStatus.innerHTML = '<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3" role="alert"><p>Testing Cloudflare API connection, please wait...</p></div>';
+                    
+                    // Create form data with CSRF token
+                    const formData = new FormData();
+                    formData.append('_token', '{{ csrf_token() }}');
+                    
+                    // Send AJAX request
+                    fetch('{{ route("admin.settings.test-cloudflare-api") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Reset button state
+                        testCloudflareApiBtn.disabled = false;
+                        testCloudflareApiBtn.innerHTML = 'Test Connection';
+                        
+                        // Display success or error message
+                        if (data.success) {
+                            let message = data.message;
+                            
+                            // If we have nameservers data, add it to the message
+                            if (data.data && data.data.name_servers && data.data.name_servers.length > 0) {
+                                message += '<br><span class="text-xs mt-1 block">Name servers: ' + data.data.name_servers.join(', ') + '</span>';
+                            }
+                            
+                            testCloudflareApiStatus.innerHTML = '<div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-3" role="alert"><p>' + message + '</p></div>';
+                        } else {
+                            testCloudflareApiStatus.innerHTML = '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3" role="alert"><p>' + data.message + '</p></div>';
+                        }
+                        
+                        // Auto-hide message after 10 seconds
+                        setTimeout(() => {
+                            testCloudflareApiStatus.classList.add('hidden');
+                        }, 10000);
+                    })
+                    .catch(error => {
+                        // Reset button state
+                        testCloudflareApiBtn.disabled = false;
+                        testCloudflareApiBtn.innerHTML = 'Test Connection';
+                        
+                        // Display error message
+                        testCloudflareApiStatus.innerHTML = '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3" role="alert"><p>An error occurred while testing the Cloudflare API connection.</p></div>';
                     });
                 });
             }

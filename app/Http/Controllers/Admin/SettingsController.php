@@ -234,4 +234,78 @@ class SettingsController extends Controller
             ]);
         }
     }
+    
+    /**
+     * Test Cloudflare API connection using the configured settings.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function testCloudflareApi(Request $request)
+    {
+        // Get Cloudflare settings
+        $cloudflareSettings = SystemSetting::whereIn('meta_key', [
+            'zone_id', 'cloudflare_api_key', 'domain'
+        ])->pluck('meta_value', 'meta_key')->toArray();
+        
+        // Check if required settings are available
+        $requiredSettings = ['zone_id', 'cloudflare_api_key', 'domain'];
+        foreach ($requiredSettings as $setting) {
+            if (!isset($cloudflareSettings[$setting]) || empty($cloudflareSettings[$setting])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please complete all Cloudflare configuration fields before testing the connection.'
+                ]);
+            }
+        }
+        
+        try {
+            // Make API request to Cloudflare to get zone details
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $cloudflareSettings['cloudflare_api_key']
+            ])->get('https://api.cloudflare.com/client/v4/zones/' . $cloudflareSettings['zone_id']);
+            
+            // Check for successful response
+            if ($response->successful() && isset($response->json()['success']) && $response->json()['success'] === true) {
+                $zoneData = $response->json()['result'];
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cloudflare connection successful! Connected to zone: ' . $zoneData['name'],
+                    'data' => [
+                        'zone_name' => $zoneData['name'],
+                        'zone_status' => $zoneData['status'],
+                        'name_servers' => $zoneData['name_servers'] ?? []
+                    ]
+                ]);
+            } else {
+                // Handle API error response
+                $errorMessage = 'Cloudflare API connection failed. ';
+                
+                if ($response->status() === 401 || $response->status() === 403) {
+                    $errorMessage .= 'Authentication failed. Please check your API key.';
+                } elseif ($response->status() === 404) {
+                    $errorMessage .= 'Zone not found. Please check your Zone ID.';
+                } else {
+                    $errorMessage .= 'Server returned status code: ' . $response->status();
+                    
+                    // Extract error messages from Cloudflare response
+                    if (isset($response->json()['errors']) && !empty($response->json()['errors'])) {
+                        $errorMessage .= ' - ' . $response->json()['errors'][0]['message'];
+                    }
+                }
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Connection failed: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
