@@ -10,17 +10,10 @@ use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
-    /**
-     * Display the settings page.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        // Get all settings from the database
         $settings = SystemSetting::pluck('meta_value', 'meta_key')->toArray();
         
-        // Determine configuration status for each section
         $cloudflareConfigured = 
             isset($settings['zone_id']) && !empty($settings['zone_id']) &&
             isset($settings['cloudflare_api_key']) && !empty($settings['cloudflare_api_key']) &&
@@ -44,23 +37,14 @@ class SettingsController extends Controller
         return view('admin.settings.index', compact('settings', 'cloudflareConfigured', 'serveravatarConfigured', 'smtpConfigured'));
     }
 
-    /**
-     * Update the system settings.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
         $settings = $request->input('settings', []);
         
-        // Define checkbox settings that need special handling
         $checkboxSettings = ['allow_site_creation', 'allow_registration', 'mail_encryption'];
         
-        // Add app/Services/SystemSettingsService.php instance to clear caches
         $systemSettingsService = app(\App\Services\SystemSettingsService::class);
         
-        // First, handle all non-checkbox settings
         foreach ($settings as $key => $value) {
             if (!in_array($key, $checkboxSettings)) {
                 SystemSetting::updateOrCreate(
@@ -68,10 +52,8 @@ class SettingsController extends Controller
                     ['meta_value' => $value]
                 );
                 
-                // Clear cache for this key to ensure fresh value
                 $systemSettingsService->clearCache($key);
                 
-                // Special logging for domain changes
                 if ($key === 'domain') {
                     \Illuminate\Support\Facades\Log::info('Domain setting updated', [
                         'new_value' => $value,
@@ -81,7 +63,6 @@ class SettingsController extends Controller
             }
         }
         
-        // Then handle all checkbox settings (they may or may not be in the request)
         foreach ($checkboxSettings as $checkboxKey) {
             $value = isset($settings[$checkboxKey]) ? '1' : '0';
             
@@ -90,31 +71,21 @@ class SettingsController extends Controller
                 ['meta_value' => $value]
             );
             
-            // Clear cache for this key too
             $systemSettingsService->clearCache($checkboxKey);
         }
         
-        // Flush any domain-related cache specifically
         $systemSettingsService->clearCache('domain');
         
         return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully');
     }
     
-    /**
-     * Send a test email using the configured SMTP settings.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function testEmail(Request $request)
     {
-        // Get all mail settings
         $mailSettings = SystemSetting::whereIn('meta_key', [
             'mail_host', 'mail_port', 'mail_username', 'mail_password',
             'mail_from_name', 'mail_from_address', 'mail_encryption'
         ])->pluck('meta_value', 'meta_key')->toArray();
         
-        // Check if all required settings are available
         $requiredSettings = ['mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_from_name', 'mail_from_address'];
         foreach ($requiredSettings as $setting) {
             if (!isset($mailSettings[$setting]) || empty($mailSettings[$setting])) {
@@ -131,7 +102,6 @@ class SettingsController extends Controller
         }
         
         try {
-            // Manually configure mail settings for this request
             config([
                 'mail.default' => 'smtp',
                 'mail.mailers.smtp.host' => $mailSettings['mail_host'],
@@ -143,10 +113,8 @@ class SettingsController extends Controller
                 'mail.from.name' => $mailSettings['mail_from_name'],
             ]);
             
-            // Send test email to the authenticated user
             $user = $request->user();
             
-            // Create a detailed test email message
             $message = "This is a test email from your application to verify that your SMTP settings are correctly configured.\n\n";
             $message .= "SMTP Configuration:\n";
             $message .= "- Host: " . $mailSettings['mail_host'] . "\n";
@@ -185,20 +153,12 @@ class SettingsController extends Controller
         }
     }
     
-    /**
-     * Test ServerAvatar API connection using the configured settings.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function testServerAvatarApi(Request $request)
     {
-        // Get all ServerAvatar API settings
         $apiSettings = SystemSetting::whereIn('meta_key', [
             'api_url', 'api_key', 'organisation_id'
         ])->pluck('meta_value', 'meta_key')->toArray();
         
-        // Check if all required settings are available
         $requiredSettings = ['api_url', 'api_key', 'organisation_id'];
         foreach ($requiredSettings as $setting) {
             if (!isset($apiSettings[$setting]) || empty($apiSettings[$setting])) {
@@ -210,13 +170,11 @@ class SettingsController extends Controller
         }
         
         try {
-            // Make API request to get organization details
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => $apiSettings['api_key']
             ])->get($apiSettings['api_url'] . '/organizations/' . $apiSettings['organisation_id']);
             
-            // Check for successful response
             if ($response->successful() && isset($response->json()['organization'])) {
                 $org = $response->json()['organization'];
                 
@@ -229,7 +187,6 @@ class SettingsController extends Controller
                     ]
                 ]);
             } else {
-                // Handle API error response
                 $errorMessage = 'API connection failed. ';
                 if ($response->status() === 401 || $response->status() === 403) {
                     $errorMessage .= 'Authentication failed. Please check your API key.';
@@ -255,20 +212,12 @@ class SettingsController extends Controller
         }
     }
     
-    /**
-     * Test Cloudflare API connection using the configured settings.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function testCloudflareApi(Request $request)
     {
-        // Get Cloudflare settings
         $cloudflareSettings = SystemSetting::whereIn('meta_key', [
             'zone_id', 'cloudflare_api_key', 'domain'
         ])->pluck('meta_value', 'meta_key')->toArray();
         
-        // Check if required settings are available
         $requiredSettings = ['zone_id', 'cloudflare_api_key', 'domain'];
         foreach ($requiredSettings as $setting) {
             if (!isset($cloudflareSettings[$setting]) || empty($cloudflareSettings[$setting])) {
@@ -280,13 +229,11 @@ class SettingsController extends Controller
         }
         
         try {
-            // Make API request to Cloudflare to get zone details
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $cloudflareSettings['cloudflare_api_key']
             ])->get('https://api.cloudflare.com/client/v4/zones/' . $cloudflareSettings['zone_id']);
             
-            // Check for successful response
             if ($response->successful() && isset($response->json()['success']) && $response->json()['success'] === true) {
                 $zoneData = $response->json()['result'];
                 
@@ -300,7 +247,6 @@ class SettingsController extends Controller
                     ]
                 ]);
             } else {
-                // Handle API error response
                 $errorMessage = 'Cloudflare API connection failed. ';
                 
                 if ($response->status() === 401 || $response->status() === 403) {
@@ -310,7 +256,6 @@ class SettingsController extends Controller
                 } else {
                     $errorMessage .= 'Server returned status code: ' . $response->status();
                     
-                    // Extract error messages from Cloudflare response
                     if (isset($response->json()['errors']) && !empty($response->json()['errors'])) {
                         $errorMessage .= ' - ' . $response->json()['errors'][0]['message'];
                     }

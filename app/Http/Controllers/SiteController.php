@@ -16,35 +16,12 @@ use App\Mail\SiteCreated;
 
 class SiteController extends Controller
 {
-    /**
-     * The SystemSettingsService instance.
-     *
-     * @var \App\Services\SystemSettingsService
-     */
     protected $systemSettings;
 
-    /**
-     * The ServerAvatarService instance.
-     *
-     * @var \App\Services\ServerAvatarService
-     */
     protected $serverAvatarService;
 
-    /**
-     * The CloudflareService instance.
-     *
-     * @var \App\Services\CloudflareService
-     */
     protected $cloudflareService;
 
-    /**
-     * Create a new controller instance.
-     *
-     * @param \App\Services\SystemSettingsService $systemSettings
-     * @param \App\Services\ServerAvatarService $serverAvatarService
-     * @param \App\Services\CloudflareService $cloudflareService
-     * @return void
-     */
     public function __construct(
         SystemSettingsService $systemSettings, 
         ServerAvatarService $serverAvatarService,
@@ -55,16 +32,12 @@ class SiteController extends Controller
         $this->cloudflareService = $cloudflareService;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $sites = Site::with('server')->latest()->get();
         $servers = SelectedServer::all();
         $domain = $this->systemSettings->getDomain();
         
-        // Debug
         \Illuminate\Support\Facades\Log::debug('Domain being passed to sites view', [
             'domain' => $domain,
             'from_settings' => $this->systemSettings->get('domain')
@@ -73,27 +46,19 @@ class SiteController extends Controller
         return view('admin.sites', compact('sites', 'servers', 'domain'));
     }
 
-    /**
-     * Show the form for creating a new resource (redirects to index with modal).
-     */
     public function create()
     {
         return redirect()->route('admin.sites.index')
             ->with('openCreateModal', true);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // Dump input for debugging
         Log::debug('Site creation request', [
             'input' => $request->all(),
             'errors' => session('errors') ? session('errors')->toArray() : null
         ]);
         
-        // Get the full domain to check for uniqueness
         $subdomain = $request->input('subdomain');
         if (!$subdomain) {
             return redirect()->route('admin.sites.index')
@@ -103,10 +68,8 @@ class SiteController extends Controller
                 ->with('error', 'Subdomain is required');
         }
         
-        // Force clear domain cache to always get the fresh value
         $this->systemSettings->clearCache('domain');
         
-        // Get the system domain setting directly from the database
         $systemDomain = $this->systemSettings->getUncachedDomain();
         Log::debug('Domain information', [
             'subdomain' => $subdomain,
@@ -117,14 +80,12 @@ class SiteController extends Controller
         
         $domain = $subdomain . '.' . $systemDomain;
         
-        // Get base validation rules
         $validationRules = [
             'subdomain' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'email' => 'nullable|email|required_if:reminder,on',
             'reminder' => 'nullable|string',
         ];
         
-        // Get validation messages
         $validationMessages = [
             'subdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
             'subdomain.unique' => 'This subdomain is already taken. Please choose another one.',
@@ -134,7 +95,6 @@ class SiteController extends Controller
         // Determine if the request is coming from the homepage or admin panel
         $isFromHomepage = $request->route()->getName() === 'home.sites.store';
         
-        // Only require terms acceptance for guest users or if coming from the homepage
         if ($isFromHomepage || !auth()->check()) {
             $validationRules['terms'] = 'required|accepted';
             $validationMessages['terms.required'] = 'You must agree to the Terms of Service and Privacy Policy.';
@@ -152,7 +112,6 @@ class SiteController extends Controller
                 ], 422);
             }
             
-            // Determine where to redirect based on the source of the request
             if ($request->route()->getName() === 'home.sites.store') {
                 return redirect()->route('home')
                     ->withErrors($validator)
@@ -167,7 +126,6 @@ class SiteController extends Controller
             }
         }
         
-        // Check if domain already exists
         if (Site::where('domain', $domain)->exists()) {
             if ($request->ajax()) {
                 return response()->json([
@@ -186,7 +144,6 @@ class SiteController extends Controller
         
         $validated = $validator->validated();
         
-        // Check if API service is configured
         if (!$this->serverAvatarService->isConfigured()) {
             if ($request->ajax()) {
                 return response()->json([
@@ -201,7 +158,6 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
-        // Get all available connected servers
         $servers = SelectedServer::where('connection_status', 'connected')->get();
         
         if ($servers->isEmpty()) {
@@ -218,12 +174,10 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
-        // Randomize the server list
         $serverIds = $servers->pluck('id')->shuffle();
         $createResponse = null;
         $usedServer = null;
         
-        // Try each server until one works or we run out of servers
         foreach ($serverIds as $serverId) {
             $server = SelectedServer::find($serverId);
             if (!$server) {
@@ -232,20 +186,17 @@ class SiteController extends Controller
             
             $usedServer = $server;
             
-            // Log the attempt
             Log::debug('Attempting to create WordPress site on server', [
                 'server_id' => $server->server_id,
                 'domain' => $domain,
                 'selected_server' => $server->toArray()
             ]);
 
-            // Create WordPress site via ServerAvatar API
             $createResponse = $this->serverAvatarService->createWordPressSite(
                 $server->server_id,
                 $domain
             );
             
-            // If successful, also fetch database information
             if ($createResponse['success'] && isset($createResponse['data']['application']['id'])) {
                 Log::debug('WordPress site created, now fetching database information');
                 $databaseResponse = $this->serverAvatarService->getDatabaseInformation(
@@ -276,7 +227,6 @@ class SiteController extends Controller
                 }
             }
             
-            // If successful or specific errors that won't be fixed by trying another server, break
             if ($createResponse['success'] || 
                 (isset($createResponse['error_code']) && $createResponse['error_code'] === 'duplicate_domain') ||
                 (strpos(strtolower($createResponse['message'] ?? ''), 'duplicate domain') !== false) ||
@@ -284,7 +234,6 @@ class SiteController extends Controller
                 break;
             }
             
-            // If we get here, this server failed with a 500 error, mark it as in maintenance
             SelectedServer::where('id', $server->id)->update(['connection_status' => 'maintenance']);
             Log::warning('Server failed to create WordPress site, trying next server', [
                 'server_id' => $server->server_id,
@@ -292,7 +241,6 @@ class SiteController extends Controller
             ]);
         }
         
-        // If all servers failed, return an error
         if (!$createResponse || !$usedServer) {
             if ($request->ajax()) {
                 return response()->json([
@@ -307,14 +255,12 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
-        // Set $server to the one that was used successfully or last tried
         $server = $usedServer;
         
         if (!$createResponse['success']) {
             $errorMessage = 'Failed to create WordPress site: ' . $createResponse['message'];
             Log::error($errorMessage, ['response' => $createResponse]);
             
-            // Special handling for duplicate domain error
             if (isset($createResponse['error_code']) && $createResponse['error_code'] === 'duplicate_domain') {
                 if ($request->ajax()) {
                     return response()->json([
@@ -331,7 +277,6 @@ class SiteController extends Controller
                     ->with('error', 'This domain name is already in use. Please choose a different subdomain.');
             }
             
-            // Handle server errors during WordPress installation
             if (isset($createResponse['error_code']) && $createResponse['error_code'] === 'server_error') {
                 // Try a different server next time
                 SelectedServer::where('id', $server->id)->update(['connection_status' => 'maintenance']);
@@ -356,7 +301,6 @@ class SiteController extends Controller
                     ->with('error', 'The server encountered an error during WordPress installation. Please try again with a different subdomain.');
             }
             
-            // Check if this is a domain uniqueness error based on message content
             if (strpos(strtolower($createResponse['message']), 'duplicate domain') !== false ||
                 strpos(strtolower($createResponse['message']), 'domain name found') !== false) {
                 
@@ -388,7 +332,6 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
-        // Get the application data
         $applicationData = $createResponse['data']['application'] ?? null;
         
         if (!$applicationData || !isset($applicationData['id'])) {
@@ -408,7 +351,6 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
-        // Install SSL certificate - wrapped in try/catch to prevent complete failure if SSL installation fails
         try {
             Log::info('Attempting to install SSL certificate', [
                 'server_id' => $server->server_id,
@@ -721,9 +663,6 @@ class SiteController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($uuid)
     {
         $site = Site::where('uuid', $uuid)->firstOrFail();
@@ -771,9 +710,6 @@ class SiteController extends Controller
         return view('admin.sites.show', compact('site', 'applicationDetails'));
     }
     
-    /**
-     * Update a site's public visibility status
-     */
     public function togglePublic(Request $request, Site $site)
     {
         $validated = $request->validate([
@@ -790,9 +726,6 @@ class SiteController extends Controller
         ]);
     }
     
-    /**
-     * Display the public view of a site
-     */
     public function publicShow($uuid)
     {
         $site = Site::where('uuid', $uuid)
@@ -820,11 +753,7 @@ class SiteController extends Controller
         return view('sites.public.show', compact('site', 'applicationDetails'));
     }
 
-    // Edit and update functionality removed since sites cannot be edited once created
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Site $site)
     {
         $warnings = [];

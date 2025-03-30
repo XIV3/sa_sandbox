@@ -16,11 +16,6 @@ class ServerManagementController extends Controller
         $this->serverAvatarService = $serverAvatarService;
     }
 
-    /**
-     * Get all selected servers
-     *
-     * @return JsonResponse
-     */
     public function getSelectedServers(): JsonResponse
     {
         $servers = SelectedServer::all();
@@ -31,12 +26,6 @@ class ServerManagementController extends Controller
         ]);
     }
 
-    /**
-     * Add a server to selected servers
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function addServer(Request $request): JsonResponse
     {
         $request->validate([
@@ -45,7 +34,6 @@ class ServerManagementController extends Controller
 
         $serverId = $request->input('server_id');
         
-        // Check if server already exists in selected_servers
         $existingServer = SelectedServer::where('server_id', $serverId)->first();
         if ($existingServer) {
             return response()->json([
@@ -54,7 +42,6 @@ class ServerManagementController extends Controller
             ]);
         }
         
-        // Get server details from API
         $result = $this->serverAvatarService->getServer($serverId);
         
         if (!$result['success']) {
@@ -64,26 +51,20 @@ class ServerManagementController extends Controller
             ]);
         }
         
-        // Create a new selected server
         try {
-            // Get the exact server data from the API
             $serverData = $result['data'];
             
-            // Log basic server info for debugging
             \Log::debug('Adding server:', [
                 'server_id' => $serverId,
                 'name' => $serverData['name'],
                 'ip' => $serverData['ip'] ?? 'N/A'
             ]);
             
-            // Determine connection status based on both agent_status and ssh_status
             $isAgentConnected = isset($serverData['agent_status']) && $serverData['agent_status'] == '1';
             $isSshConnected = isset($serverData['ssh_status']) && $serverData['ssh_status'] == '1';
             
-            // Only set to connected if both agent and SSH are connected
             $connectionStatus = ($isAgentConnected && $isSshConnected) ? 'connected' : 'disconnected';
             
-            // Create a new server record with essential information including connection status
             $server = new SelectedServer();
             $server->server_id = $serverData['id'];
             $server->name = $serverData['name'];
@@ -93,10 +74,9 @@ class ServerManagementController extends Controller
             $server->cores = isset($serverData['cores']) && is_numeric($serverData['cores']) ? $serverData['cores'] : null;
             $server->connection_status = $connectionStatus;
             
-            // Handle potential duplicate by checking first
             $exists = SelectedServer::where('server_id', $serverData['id'])->first();
             if ($exists) {
-                $exists->delete(); // Remove the existing record
+                $exists->delete();
             }
             
             $server->save();
@@ -114,12 +94,6 @@ class ServerManagementController extends Controller
         }
     }
 
-    /**
-     * Remove a server from selected servers
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function removeServer(Request $request): JsonResponse
     {
         $request->validate([
