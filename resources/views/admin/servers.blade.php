@@ -13,7 +13,8 @@
             <!-- Selected Servers Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Selected Servers</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">Selected Servers</h3>
+                    <p class="mb-4 text-sm text-gray-600">Servers that you have chosen to manage applications on. These servers will be available when creating new sites.</p>
                     
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-300">
@@ -85,7 +86,10 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">All Available Servers</h3>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900">All Available Servers</h3>
+                            <p class="text-sm text-gray-600 mt-1">Servers from your ServerAvatar account that can be added to your selected servers list.</p>
+                        </div>
                         <a href="{{ route('admin.servers') }}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
