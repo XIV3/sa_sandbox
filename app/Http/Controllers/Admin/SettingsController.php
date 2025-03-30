@@ -55,7 +55,7 @@ class SettingsController extends Controller
         $settings = $request->input('settings', []);
         
         // Define checkbox settings that need special handling
-        $checkboxSettings = ['allow_site_creation', 'mail_encryption'];
+        $checkboxSettings = ['allow_site_creation', 'allow_registration', 'mail_encryption'];
         
         // Add app/Services/SystemSettingsService.php instance to clear caches
         $systemSettingsService = app(\App\Services\SystemSettingsService::class);

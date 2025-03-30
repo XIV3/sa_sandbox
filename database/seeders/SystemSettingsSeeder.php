@@ -22,6 +22,11 @@ class SystemSettingsSeeder extends Seeder
             ['meta_key' => 'allow_site_creation'],
             ['meta_value' => '0'] // Default to disabled
         );
+        
+        SystemSetting::updateOrCreate(
+            ['meta_key' => 'allow_registration'],
+            ['meta_value' => '1'] // Default to enabled
+        );
 
         // Cloudflare Integration Settings
         SystemSetting::updateOrCreate(

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -17,8 +18,17 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        // Check if registration is allowed in system settings
+        $allowRegistration = SystemSetting::where('meta_key', 'allow_registration')
+            ->first()->meta_value ?? '1';
+            
+        if ($allowRegistration !== '1') {
+            return redirect()->route('login')
+                ->with('error', 'Registration is currently disabled by the administrator.');
+        }
+        
         return view('auth.register');
     }
 
@@ -29,6 +39,15 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Check if registration is allowed in system settings
+        $allowRegistration = SystemSetting::where('meta_key', 'allow_registration')
+            ->first()->meta_value ?? '1';
+            
+        if ($allowRegistration !== '1') {
+            return redirect()->route('login')
+                ->with('error', 'Registration is currently disabled by the administrator.');
+        }
+        
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],

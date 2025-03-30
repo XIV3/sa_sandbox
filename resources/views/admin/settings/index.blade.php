@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                             
-                            <div class="mt-6">
+                            <div class="mt-6 space-y-4">
                                 <div class="flex items-start">
                                     <div class="flex h-5 items-center">
                                         <input id="allow_site_creation" name="settings[allow_site_creation]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ isset($settings['allow_site_creation']) && $settings['allow_site_creation'] == '1' ? 'checked' : '' }}>
@@ -58,6 +58,16 @@
                                     <div class="ml-3 text-sm">
                                         <label for="allow_site_creation" class="font-medium text-gray-700">Allow site creation from homepage</label>
                                         <p class="text-gray-500">When enabled, users can create new sites directly from the homepage of the project</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="flex h-5 items-center">
+                                        <input id="allow_registration" name="settings[allow_registration]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ isset($settings['allow_registration']) && $settings['allow_registration'] == '1' ? 'checked' : '' }}>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="allow_registration" class="font-medium text-gray-700">Allow new user registrations</label>
+                                        <p class="text-gray-500">When enabled, new users can register accounts on the site. If disabled, only existing users can log in.</p>
                                     </div>
                                 </div>
                             </div>
