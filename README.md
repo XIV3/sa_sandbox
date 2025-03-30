@@ -25,7 +25,7 @@ Sandbox is an open-source platform for creating self-destructing WordPress sites
 - **Email Notifications**: Optional reminders before sites are deleted
 - **Highly Configurable**: Customize domain, expiration times, and more
 
-## 🚀 Quick Demo
+## 🚀 The Main Instance
 
 The quickest way to see Sandbox in action is to visit [https://sandbox.serveravatar.com](https://sandbox.serveravatar.com) and create a throwaway WordPress site with one click.
 
@@ -105,13 +105,180 @@ Log into the admin dashboard at `/admin` and navigate to the Settings page to co
 - **Cloudflare Integration**: Connect to your Cloudflare account (optional)
 - **SMTP Settings**: Configure email notifications
 
-### Step 8: Run the Application
+### Step 8: Set Up the Laravel Scheduler
+
+The application uses Laravel's scheduler to run recurring tasks like site expiration checks. Add the scheduler to your crontab:
+
+```bash
+crontab -e
+```
+
+Then add this line to run the scheduler every minute:
+
+```
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+This will ensure that expired sites are automatically cleaned up based on the configuration.
+
+### Step 9: Run the Application (Development)
 
 ```bash
 php artisan serve
 ```
 
 Visit `http://localhost:8000` in your browser to access the application.
+
+## 🌐 Production Deployment
+
+For deploying to a production environment, follow these additional steps:
+
+### Web Server Configuration
+
+#### Option 1: Nginx (Recommended)
+
+Create a new Nginx site configuration in `/etc/nginx/sites-available/sandbox`:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;
+    root /var/www/sandbox/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+Enable the site and restart Nginx:
+
+```bash
+ln -s /etc/nginx/sites-available/sandbox /etc/nginx/sites-enabled/
+nginx -t
+systemctl restart nginx
+```
+
+#### Option 2: Apache
+
+Create a virtual host configuration or update your `.htaccess` file:
+
+```apache
+<VirtualHost *:80>
+    ServerName your-domain.com
+    ServerAlias www.your-domain.com
+    DocumentRoot /var/www/sandbox/public
+    
+    <Directory /var/www/sandbox/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+### SSL Configuration
+
+For production, you should secure your site with SSL. The easiest way is to use Certbot with Let's Encrypt:
+
+```bash
+certbot --nginx -d your-domain.com -d www.your-domain.com
+```
+
+Or for Apache:
+
+```bash
+certbot --apache -d your-domain.com -d www.your-domain.com
+```
+
+### Optimize for Production
+
+Run these commands to optimize your application for production:
+
+```bash
+# Clear and cache configuration
+php artisan config:cache
+
+# Cache routes
+php artisan route:cache
+
+# Optimize Composer's autoloader
+composer install --optimize-autoloader --no-dev
+
+# Compile assets for production
+npm run build
+```
+
+### Queue Worker (Optional)
+
+If you're using queues for email processing or other background tasks:
+
+```bash
+# Install Supervisor
+apt-get install supervisor
+
+# Create a configuration file
+nano /etc/supervisor/conf.d/sandbox-worker.conf
+```
+
+Add the following configuration:
+
+```ini
+[program:sandbox-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/sandbox/artisan queue:work --sleep=3 --tries=3
+autostart=true
+autorestart=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/sandbox/storage/logs/worker.log
+```
+
+Then reload Supervisor:
+
+```bash
+supervisorctl reread
+supervisorctl update
+supervisorctl start sandbox-worker:*
+```
+
+### Environment Checks
+
+Make sure your production environment is properly configured:
+
+1. Set `APP_ENV=production` and `APP_DEBUG=false` in your `.env` file
+2. Set appropriate logging configuration in `.env` with `LOG_CHANNEL=daily`
+3. Configure a proper mail driver for production
+4. Ensure proper file permissions:
+   ```bash
+   chown -R www-data:www-data /var/www/sandbox
+   chmod -R 755 /var/www/sandbox/storage /var/www/sandbox/bootstrap/cache
+   ```
 
 ## 🔐 ServerAvatar API Configuration
 
