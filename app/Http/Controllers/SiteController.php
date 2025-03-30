@@ -10,7 +10,9 @@ use App\Services\SystemSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
+use App\Mail\SiteCreated;
 
 class SiteController extends Controller
 {
@@ -115,18 +117,31 @@ class SiteController extends Controller
         
         $domain = $subdomain . '.' . $systemDomain;
         
-        $validator = validator($request->all(), [
+        // Get base validation rules
+        $validationRules = [
             'subdomain' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'email' => 'nullable|email|required_if:reminder,on',
             'reminder' => 'nullable|string',
-            'terms' => 'required|accepted',
-        ], [
+        ];
+        
+        // Get validation messages
+        $validationMessages = [
             'subdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
             'subdomain.unique' => 'This subdomain is already taken. Please choose another one.',
             'email.required_if' => 'The email field is required when reminder is enabled.',
-            'terms.required' => 'You must agree to the Terms of Service and Privacy Policy.',
-            'terms.accepted' => 'You must agree to the Terms of Service and Privacy Policy.',
-        ]);
+        ];
+        
+        // Determine if the request is coming from the homepage or admin panel
+        $isFromHomepage = $request->route()->getName() === 'home.sites.store';
+        
+        // Only require terms acceptance for guest users or if coming from the homepage
+        if ($isFromHomepage || !auth()->check()) {
+            $validationRules['terms'] = 'required|accepted';
+            $validationMessages['terms.required'] = 'You must agree to the Terms of Service and Privacy Policy.';
+            $validationMessages['terms.accepted'] = 'You must agree to the Terms of Service and Privacy Policy.';
+        }
+        
+        $validator = validator($request->all(), $validationRules, $validationMessages);
         
         if ($validator->fails()) {
             if ($request->ajax()) {
@@ -654,6 +669,30 @@ class SiteController extends Controller
                 'has_database_id' => !empty($site->database_id),
                 'has_server_id' => !empty($site->server_id)
             ]);
+        }
+        
+        // Send email notification if user provided an email address
+        if ($site->email) {
+            try {
+                Log::info('Sending site creation email notification', [
+                    'site_id' => $site->id,
+                    'site_uuid' => $site->uuid,
+                    'email' => $site->email
+                ]);
+                
+                Mail::to($site->email)->send(new SiteCreated($site));
+                
+                Log::info('Site creation email notification sent successfully');
+            } catch (\Exception $e) {
+                // Log the error but don't fail the entire site creation process
+                Log::error('Failed to send site creation email notification: ' . $e->getMessage(), [
+                    'site_id' => $site->id,
+                    'site_uuid' => $site->uuid,
+                    'email' => $site->email,
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
         }
         
         // Check if this is an AJAX request
