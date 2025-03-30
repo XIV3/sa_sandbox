@@ -54,12 +54,6 @@ class ServerManagementController extends Controller
         try {
             $serverData = $result['data'];
             
-            \Log::debug('Adding server:', [
-                'server_id' => $serverId,
-                'name' => $serverData['name'],
-                'ip' => $serverData['ip'] ?? 'N/A'
-            ]);
-            
             $isAgentConnected = isset($serverData['agent_status']) && $serverData['agent_status'] == '1';
             $isSshConnected = isset($serverData['ssh_status']) && $serverData['ssh_status'] == '1';
             

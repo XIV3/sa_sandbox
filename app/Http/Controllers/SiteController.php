@@ -38,11 +38,6 @@ class SiteController extends Controller
         $servers = SelectedServer::all();
         $domain = $this->systemSettings->getDomain();
         
-        \Illuminate\Support\Facades\Log::debug('Domain being passed to sites view', [
-            'domain' => $domain,
-            'from_settings' => $this->systemSettings->get('domain')
-        ]);
-        
         return view('admin.sites', compact('sites', 'servers', 'domain'));
     }
 
@@ -53,13 +48,7 @@ class SiteController extends Controller
     }
 
     public function store(Request $request)
-    {
-        Log::debug('Site creation request', [
-            'input' => $request->all(),
-            'errors' => session('errors') ? session('errors')->toArray() : null
-        ]);
-        
-        $subdomain = $request->input('subdomain');
+    {        $subdomain = $request->input('subdomain');
         if (!$subdomain) {
             return redirect()->route('admin.sites.index')
                 ->withErrors(['subdomain' => 'Subdomain is required'])
@@ -71,13 +60,6 @@ class SiteController extends Controller
         $this->systemSettings->clearCache('domain');
         
         $systemDomain = $this->systemSettings->getUncachedDomain();
-        Log::debug('Domain information', [
-            'subdomain' => $subdomain,
-            'system_domain' => $systemDomain,
-            'combined_domain' => $subdomain . '.' . $systemDomain,
-            'cache_cleared' => true
-        ]);
-        
         $domain = $subdomain . '.' . $systemDomain;
         
         $validationRules = [
@@ -186,11 +168,6 @@ class SiteController extends Controller
             
             $usedServer = $server;
             
-            Log::debug('Attempting to create WordPress site on server', [
-                'server_id' => $server->server_id,
-                'domain' => $domain,
-                'selected_server' => $server->toArray()
-            ]);
 
             $createResponse = $this->serverAvatarService->createWordPressSite(
                 $server->server_id,
@@ -198,7 +175,6 @@ class SiteController extends Controller
             );
             
             if ($createResponse['success'] && isset($createResponse['data']['application']['id'])) {
-                Log::debug('WordPress site created, now fetching database information');
                 $databaseResponse = $this->serverAvatarService->getDatabaseInformation(
                     $server->server_id,
                     $createResponse['data']['application']['id']
@@ -211,14 +187,9 @@ class SiteController extends Controller
                         'full_data' => $databaseResponse['data']
                     ]);
                     
-                    // Add more extensive logging for debugging
-                    if (!empty($databaseResponse['data']['database_id'])) {
-                        Log::debug('Successfully captured database ID: ' . $databaseResponse['data']['database_id']);
-                    } else {
+                    if (empty($databaseResponse['data']['database_id'])) {
                         Log::warning('Failed to capture database ID from application data');
                     }
-                    
-                    // Merge database information into the create response
                     $createResponse['data']['database'] = $databaseResponse['data'];
                 } else {
                     Log::warning('Failed to retrieve database information', [
