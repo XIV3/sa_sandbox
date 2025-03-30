@@ -24,27 +24,9 @@ class DeleteExpiredSites extends Command
      */
     protected $description = 'Delete all sites that have passed their expiration date';
 
-    /**
-     * The ServerAvatarService instance.
-     *
-     * @var \App\Services\ServerAvatarService
-     */
     protected $serverAvatarService;
-
-    /**
-     * The CloudflareService instance.
-     *
-     * @var \App\Services\CloudflareService
-     */
     protected $cloudflareService;
 
-    /**
-     * Create a new command instance.
-     *
-     * @param \App\Services\ServerAvatarService $serverAvatarService
-     * @param \App\Services\CloudflareService $cloudflareService
-     * @return void
-     */
     public function __construct(
         ServerAvatarService $serverAvatarService,
         CloudflareService $cloudflareService

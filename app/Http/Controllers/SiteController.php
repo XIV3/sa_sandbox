@@ -140,6 +140,7 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
+        // Get all available connected servers
         $servers = SelectedServer::where('connection_status', 'connected')->get();
         
         if ($servers->isEmpty()) {
@@ -156,60 +157,71 @@ class SiteController extends Controller
                 ->with('openCreateModal', true);
         }
         
-        $serverIds = $servers->pluck('id')->shuffle();
+        // Randomly select one server instead of trying each one
+        $server = $servers->random();
+        $usedServer = $server;
         $createResponse = null;
-        $usedServer = null;
         
-        foreach ($serverIds as $serverId) {
-            $server = SelectedServer::find($serverId);
-            if (!$server) {
-                continue;
-            }
+        // Attempt to create WordPress site on the randomly selected server
+        $createResponse = $this->serverAvatarService->createWordPressSite(
+            $server->server_id,
+            $domain
+        );
+        
+        // If there's a server error, try one more time with a different server
+        if (!$createResponse['success'] && 
+            !(isset($createResponse['error_code']) && $createResponse['error_code'] === 'duplicate_domain') && 
+            !(strpos(strtolower($createResponse['message'] ?? ''), 'duplicate domain') !== false) && 
+            !(strpos(strtolower($createResponse['message'] ?? ''), 'domain name found') !== false)) {
             
-            $usedServer = $server;
-            
-
-            $createResponse = $this->serverAvatarService->createWordPressSite(
-                $server->server_id,
-                $domain
-            );
-            
-            if ($createResponse['success'] && isset($createResponse['data']['application']['id'])) {
-                $databaseResponse = $this->serverAvatarService->getDatabaseInformation(
-                    $server->server_id,
-                    $createResponse['data']['application']['id']
-                );
-                
-                if ($databaseResponse['success']) {
-                    Log::info('Database information retrieved successfully', [
-                        'database_id' => $databaseResponse['data']['database_id'] ?? null,
-                        'database_name' => $databaseResponse['data']['database_name'] ?? null,
-                        'full_data' => $databaseResponse['data']
-                    ]);
-                    
-                    if (empty($databaseResponse['data']['database_id'])) {
-                        Log::warning('Failed to capture database ID from application data');
-                    }
-                    $createResponse['data']['database'] = $databaseResponse['data'];
-                } else {
-                    Log::warning('Failed to retrieve database information', [
-                        'error' => $databaseResponse['message']
-                    ]);
-                }
-            }
-            
-            if ($createResponse['success'] || 
-                (isset($createResponse['error_code']) && $createResponse['error_code'] === 'duplicate_domain') ||
-                (strpos(strtolower($createResponse['message'] ?? ''), 'duplicate domain') !== false) ||
-                (strpos(strtolower($createResponse['message'] ?? ''), 'domain name found') !== false)) {
-                break;
-            }
-            
+            // Mark the first server as in maintenance
             SelectedServer::where('id', $server->id)->update(['connection_status' => 'maintenance']);
-            Log::warning('Server failed to create WordPress site, trying next server', [
+            
+            Log::warning('First server failed to create WordPress site, trying a different server', [
                 'server_id' => $server->server_id,
                 'error' => $createResponse['message'] ?? 'Unknown error'
             ]);
+            
+            // Get remaining available servers
+            $remainingServers = SelectedServer::where('connection_status', 'connected')
+                ->where('id', '!=', $server->id)
+                ->get();
+                
+            if ($remainingServers->isNotEmpty()) {
+                // Try with a second random server
+                $server = $remainingServers->random();
+                $usedServer = $server;
+                
+                $createResponse = $this->serverAvatarService->createWordPressSite(
+                    $server->server_id,
+                    $domain
+                );
+            }
+        }
+        
+        // Get database information if site creation was successful
+        if ($createResponse['success'] && isset($createResponse['data']['application']['id'])) {
+            $databaseResponse = $this->serverAvatarService->getDatabaseInformation(
+                $server->server_id,
+                $createResponse['data']['application']['id']
+            );
+            
+            if ($databaseResponse['success']) {
+                Log::info('Database information retrieved successfully', [
+                    'database_id' => $databaseResponse['data']['database_id'] ?? null,
+                    'database_name' => $databaseResponse['data']['database_name'] ?? null,
+                    'full_data' => $databaseResponse['data']
+                ]);
+                
+                if (empty($databaseResponse['data']['database_id'])) {
+                    Log::warning('Failed to capture database ID from application data');
+                }
+                $createResponse['data']['database'] = $databaseResponse['data'];
+            } else {
+                Log::warning('Failed to retrieve database information', [
+                    'error' => $databaseResponse['message']
+                ]);
+            }
         }
         
         if (!$createResponse || !$usedServer) {
