@@ -14,7 +14,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="https://github.com/serveravatar/sandbox" target="_blank" class="text-decoration-none">
+                    <a href="https://github.com/adarshsojitra/sandbox" target="_blank" class="text-decoration-none">
                         <span class="d-inline-flex align-items-center bg-dark bg-opacity-20 px-3 py-2 rounded-pill">
                             <i class="fab fa-github text-white me-2"></i>
                             <span class="text-white">View on GitHub</span>
