@@ -22,8 +22,9 @@
         <div class="d-md-flex justify-content-between align-items-center py-3">
             <p class="mb-md-0">© 2025 Sandbox. All rights reserved.</p>
             <div>
-                <a href="#" class="text-secondary me-3">Privacy Policy</a>
-                <a href="#" class="text-secondary">Disclaimer</a>
+                <a href="{{ route('legal.privacy') }}" class="text-secondary me-3">Privacy Policy</a>
+                <a href="{{ route('legal.terms') }}" class="text-secondary me-3">Terms of Service</a>
+                <a href="{{ route('legal.disclaimer') }}" class="text-secondary">Disclaimer</a>
             </div>
         </div>
     </div>

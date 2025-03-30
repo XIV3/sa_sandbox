@@ -119,10 +119,13 @@ class SiteController extends Controller
             'subdomain' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'email' => 'nullable|email|required_if:reminder,on',
             'reminder' => 'nullable|string',
+            'terms' => 'required|accepted',
         ], [
             'subdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
             'subdomain.unique' => 'This subdomain is already taken. Please choose another one.',
             'email.required_if' => 'The email field is required when reminder is enabled.',
+            'terms.required' => 'You must agree to the Terms of Service and Privacy Policy.',
+            'terms.accepted' => 'You must agree to the Terms of Service and Privacy Policy.',
         ]);
         
         if ($validator->fails()) {
@@ -134,11 +137,19 @@ class SiteController extends Controller
                 ], 422);
             }
             
-            return redirect()->route('admin.sites.index')
-                ->withErrors($validator)
-                ->withInput()
-                ->with('openCreateModal', true)
-                ->with('error', 'Please fix the validation errors below.');
+            // Determine where to redirect based on the source of the request
+            if ($request->route()->getName() === 'home.sites.store') {
+                return redirect()->route('home')
+                    ->withErrors($validator)
+                    ->withInput()
+                    ->with('error', 'Please fix the validation errors below.');
+            } else {
+                return redirect()->route('admin.sites.index')
+                    ->withErrors($validator)
+                    ->withInput()
+                    ->with('openCreateModal', true)
+                    ->with('error', 'Please fix the validation errors below.');
+            }
         }
         
         // Check if domain already exists
@@ -452,6 +463,9 @@ class SiteController extends Controller
         // Get default deletion time from system settings
         $defaultDeletionHours = (int)$this->systemSettings->get('default_deletion_time', 72); // Default to 72 hours if not set
         
+        // Determine if the request is coming from the homepage or admin panel
+        $isFromHomepage = $request->route()->getName() === 'home.sites.store';
+        
         // Prepare site data
         $siteData = [
             'name' => $validated['subdomain'],
@@ -465,6 +479,8 @@ class SiteController extends Controller
             'email' => isset($validated['reminder']) && $validated['reminder'] === 'on' ? $validated['email'] : null,
             // Set expiration time based on system settings
             'expires_at' => now()->addHours($defaultDeletionHours),
+            // Mark sites created from the homepage as public
+            'is_public' => $isFromHomepage ? true : false,
             // Store ServerAvatar application details in separate columns for easier access
             'application_id' => $applicationData['id'] ?? null,
             'system_username' => $credentials['system_username'] ?? null,
@@ -642,16 +658,28 @@ class SiteController extends Controller
         
         // Check if this is an AJAX request
         if ($request->ajax()) {
+            // For AJAX requests, determine the redirect based on whether it's from homepage or admin panel
+            $redirectUrl = $isFromHomepage 
+                ? route('sites.public.show', $site->uuid)
+                : route('admin.sites.show', $site->uuid);
+                
             return response()->json([
                 'success' => true,
                 'message' => 'WordPress site created successfully!',
-                'redirect' => route('admin.sites.show', $site->uuid)
+                'redirect' => $redirectUrl
             ]);
         }
 
-        // For regular form submissions, redirect as usual
-        return redirect()->route('admin.sites.index')
-            ->with('success', 'WordPress site created successfully!');
+        // For regular form submissions, determine redirect based on source
+        if ($isFromHomepage) {
+            // If created from homepage, redirect to public site view
+            return redirect()->route('sites.public.show', $site->uuid)
+                ->with('success', 'WordPress site created successfully!');
+        } else {
+            // If created from admin panel, redirect to admin sites index
+            return redirect()->route('admin.sites.index')
+                ->with('success', 'WordPress site created successfully!');
+        }
     }
 
     /**

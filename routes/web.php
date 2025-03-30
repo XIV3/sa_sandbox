@@ -11,8 +11,16 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Site creation from homepage
+Route::post('/', [App\Http\Controllers\SiteController::class, 'store'])->name('home.sites.store');
+
 // Public site details route
 Route::get('/s/{uuid}', [SiteController::class, 'publicShow'])->name('sites.public.show');
+
+// Legal pages
+Route::view('/terms', 'legal.terms')->name('legal.terms');
+Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
+Route::view('/disclaimer', 'legal.disclaimer')->name('legal.disclaimer');
 
 // Debug route for form submission testing
 if (config('app.debug')) {
