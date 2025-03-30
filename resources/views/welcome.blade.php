@@ -448,7 +448,7 @@
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Your WordPress site will be deployed and ready to use in less than 60 seconds. You'll receive an email with your login credentials as soon as it's ready, allowing you to immediately start working on your site.
+                                Your WordPress site will be deployed and ready to use in approximately 30 seconds. Once created, you'll be automatically redirected to your site's information page where you can find all login credentials and connection details. If you provided an email address, you'll also receive these details via email.
                             </div>
                         </div>
                     </div>
@@ -457,13 +457,13 @@
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header" id="headingTwo">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                <i class="fas fa-globe text-primary me-3 opacity-75"></i>
-                                Can I use my own domain instead of a subdomain?
+                                <i class="fas fa-clock text-primary me-3 opacity-75"></i>
+                                How long will my site remain available?
                             </button>
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Yes! After creating your site, you can connect your own domain through our dashboard. We'll handle all the DNS configuration for you automatically with our CloudFlare integration, making the process seamless and hassle-free.
+                                Each site automatically deletes after {{ $systemSettings->get('default_deletion_time', 24) }} hours. This is configurable by system administrators to provide flexibility based on your needs. The exact time remaining is always displayed on your site's information page, and if you provided an email address, you'll receive a reminder before deletion.
                             </div>
                         </div>
                     </div>
@@ -472,13 +472,13 @@
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header" id="headingThree">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                <i class="fas fa-layer-group text-primary me-3 opacity-75"></i>
-                                Is there a limit to how many staging sites I can create?
+                                <i class="fas fa-puzzle-piece text-primary me-3 opacity-75"></i>
+                                What access do I get to the WordPress site?
                             </button>
                         </h2>
                         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Our free tier allows you to create up to 3 staging sites. For unlimited staging sites and additional features like automated backups, custom domains, and priority support, check out our premium plans starting at just $9.99/month.
+                                You receive full administrator access to your WordPress installation. All credentials (WordPress admin username and password, database details, etc.) are provided on your site's information page. You can install plugins, themes, and make any configuration changes just like on any standard WordPress installation.
                             </div>
                         </div>
                     </div>
@@ -487,13 +487,13 @@
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header" id="headingFour">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                <i class="fas fa-puzzle-piece text-primary me-3 opacity-75"></i>
-                                Can I install plugins and themes on my staging site?
+                                <i class="fas fa-shield-alt text-primary me-3 opacity-75"></i>
+                                Is my throwaway site secure?
                             </button>
                         </h2>
                         <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Absolutely! You have full admin access to your WordPress installation. You can install any themes or plugins you need, just like on a regular WordPress site. This makes it perfect for testing new functionality before deploying to production.
+                                Yes! Each site is created with SSL enabled by default, ensuring that all connections are encrypted. Sites are also isolated from each other in their own environments. Your site's information page contains all credentials and is accessible via a unique, non-guessable URL that you can share with team members or clients as needed.
                             </div>
                         </div>
                     </div>
@@ -502,13 +502,58 @@
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header" id="headingFive">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                                <i class="fas fa-clock text-primary me-3 opacity-75"></i>
-                                How long will my staging site be available?
+                                <i class="fas fa-share-alt text-primary me-3 opacity-75"></i>
+                                Can I share my site with others?
                             </button>
                         </h2>
                         <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Free staging sites remain active for 7 days without login activity. Premium plans offer extended inactivity periods and permanent staging environments. We'll send you email reminders before any site is scheduled for cleanup.
+                                Absolutely! All sites created from the homepage are automatically public. You can share both the WordPress site URL and the site information page with clients, team members, or anyone who needs access. The site information page provides all the necessary login credentials for WordPress admin access.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 6 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingSix">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                <i class="fas fa-database text-primary me-3 opacity-75"></i>
+                                Can I access the database directly?
+                            </button>
+                        </h2>
+                        <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, all database credentials are provided on your site's information page. This includes the database name, username, password, and host. You can use these credentials to connect to the database using tools like phpMyAdmin or MySQL clients to perform direct database operations if needed.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 7 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingSeven">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                <i class="fas fa-envelope text-primary me-3 opacity-75"></i>
+                                Why should I provide my email address?
+                            </button>
+                        </h2>
+                        <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Providing your email is optional but recommended. If you choose to share your email, we'll send you the WordPress login credentials and site information immediately after creation. Additionally, you'll receive a reminder before your site is scheduled for automatic deletion, giving you time to save any important work.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 8 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingEight">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                <i class="fas fa-code-branch text-primary me-3 opacity-75"></i>
+                                Can I host this platform on my own server?
+                            </button>
+                        </h2>
+                        <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes! This platform is completely open-source and designed to be self-hosted. You can deploy it on your own infrastructure with full control over domains, timeouts, and configurations. Check out our GitHub repository for installation instructions, or use our one-click deploy option to get started quickly.
                             </div>
                         </div>
                     </div>
