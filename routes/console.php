@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Schedule the delete expired sites command to run every hour
-Schedule::command('sites:delete-expired')->hourly();
+Schedule::command('sites:delete-expired')->everyMinute();
 
 // Schedule the refresh server status command to run every 5 minutes
 Schedule::command('servers:refresh-status')->everyFiveMinutes();
