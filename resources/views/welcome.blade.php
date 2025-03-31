@@ -9,7 +9,12 @@
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <span class="badge bg-white shadow-sm text-primary fw-medium px-3 py-2 mb-4">
-                    <i class="fas fa-rocket me-1"></i> Deploy & Delete in seconds
+                    <i class="fas fa-rocket me-1"></i> 
+                    @php
+                        $latestSiteId = \App\Models\Site::max('id');
+                        $siteCount = $latestSiteId ? $latestSiteId : "Thousands";
+                    @endphp
+                    {{ $siteCount }}+ Sites Deployed
                 </span>
                 <h1 class="display-3 fw-bold mb-3">
                     <span class="hero-gradient-text">Instant Throwaway</span> WordPress Sites
