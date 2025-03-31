@@ -87,13 +87,7 @@ npm run build
 
 ### Step 6: Configure the Admin User
 
-Create the first admin user:
-
-```bash
-php artisan make:user
-```
-
-Follow the prompts to create your admin credentials.
+Navigate to the `/register` page in your browser and create the first user. After the first user is created, registrations can be disabled from the System Settings.
 
 ### Step 7: Configure System Settings
 
