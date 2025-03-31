@@ -44,11 +44,11 @@
                         <table class="min-w-full divide-y divide-gray-300">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Site Name</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Domain</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">PHP Version</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Expires In</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created At</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -59,24 +59,6 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($sites as $site)
                                 <tr>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                        @if($site->status == 'active')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-green-600 mr-1.5"></span>
-                                            Active
-                                        </span>
-                                        @elseif($site->status == 'maintenance')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-yellow-600 mr-1.5"></span>
-                                            Maintenance
-                                        </span>
-                                        @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-red-600 mr-1.5"></span>
-                                            Inactive
-                                        </span>
-                                        @endif
-                                    </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $site->name }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <a href="https://{{ $site->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 hover:underline flex items-center">
@@ -92,6 +74,13 @@
                                         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
                                             PHP {{ $site->php_version }}
                                         </span>
+                                        @else
+                                        <span class="text-gray-400">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($site->email)
+                                        <span class="text-gray-600">{{ $site->email }}</span>
                                         @else
                                         <span class="text-gray-400">N/A</span>
                                         @endif
