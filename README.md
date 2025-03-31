@@ -53,7 +53,14 @@ cd sandbox
 composer install
 ```
 
-### Step 3: Set Up Environment Variables
+### Step 3: Install Frontend Dependencies and Build Assets
+
+```bash
+npm install
+npm run build
+```
+
+### Step 4: Set Up Environment Variables
 
 ```bash
 cp .env.example .env
@@ -71,18 +78,11 @@ DB_USERNAME=root
 DB_PASSWORD=your_password
 ```
 
-### Step 4: Run Migrations and Seed Database
+### Step 5: Run Migrations and Seed Database
 
 ```bash
 php artisan migrate
 php artisan db:seed
-```
-
-### Step 5: Install Frontend Dependencies and Build Assets
-
-```bash
-npm install
-npm run build
 ```
 
 ### Step 6: Configure the Admin User
