@@ -50,7 +50,6 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">PHP Version</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Expires In</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created At</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                         <span class="sr-only">Actions</span>
                                     </th>
@@ -100,9 +99,6 @@
                                             <span class="text-gray-400">N/A</span>
                                         @endif
                                     </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        {{ $site->created_at->format('M d, Y') }}
-                                    </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <div x-data="{ deleting: false }" class="flex justify-end space-x-3">
                                             <a x-show="!deleting" href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a>
@@ -119,7 +115,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="7" class="px-3 py-8 text-center text-sm text-gray-500">
                                         No sites found. <button x-data @click="$dispatch('open-modal')" class="text-indigo-600 hover:text-indigo-900 bg-transparent p-0 border-0 inline underline">Create your first site</button>.
                                     </td>
                                 </tr>
