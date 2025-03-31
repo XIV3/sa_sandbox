@@ -136,7 +136,7 @@
                                     <input class="form-check-input" type="checkbox" id="reminder" name="reminder" value="on" 
                                         {{ old('reminder') ? 'checked' : '' }} onchange="toggleEmailField()">
                                     <label class="form-check-label fw-medium" for="reminder">
-                                        Send me site info and remind me before delete
+                                        Send me site info and remind me 30 minutes before deleting the site.
                                     </label>
                                 </div>
                                 
