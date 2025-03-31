@@ -176,6 +176,18 @@ To enable email notifications for site creation and deletion reminders:
 - Configure system settings
 - Toggle site creation from the homepage
 
+### Documentation
+
+For detailed information about using Sandbox, please see the documentation in the `/docs` directory:
+
+- [Site Creation](docs/site-creation.md) - How to create a new site
+- [Site Information View](docs/site-info-view.md) - How to view site information
+- [Admin Sites Section](docs/admin-sites-section.md) - Overview of the admin sites section
+- [Admin Site Creation](docs/admin-site-creation.md) - How to create sites as an admin
+- [Admin Server Management](docs/admin-server-management.md) - How to manage servers
+- [Admin Site Management](docs/admin-site-management.md) - How to manage sites
+- [System Settings](docs/system-settings.md) - Configuring system settings
+
 ## 🎯 Customization
 
 ### Change Default Deletion Time

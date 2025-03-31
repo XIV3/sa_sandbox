@@ -41,6 +41,7 @@ class Site extends Model
         'database_password',
         'database_host',
         'expires_at',
+        'deletion_notification_sent',
     ];
 
     /**
@@ -54,6 +55,7 @@ class Site extends Model
         'has_dns_record' => 'boolean',
         'is_public' => 'boolean',
         'expires_at' => 'datetime',
+        'deletion_notification_sent' => 'boolean',
     ];
 
     /**
