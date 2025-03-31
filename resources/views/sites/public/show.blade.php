@@ -483,6 +483,21 @@
                                 </div>
                             </div>
 
+                            @if($site->server && $site->server->phpmyadmin_url)
+                            <div class="mt-4 border-t border-gray-100 pt-4">
+                                <div class="text-sm font-medium text-gray-400">phpMyAdmin</div>
+                                <div class="mt-1 flex items-center">
+                                    <a href="{{ $site->server->phpmyadmin_url }}" target="_blank" 
+                                       class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center">
+                                        Access phpMyAdmin
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
+                            
                             <div class="mt-4 border-t border-gray-100 pt-4">
                                 <div class="text-sm font-medium text-gray-400">Database ID</div>
                                 <div class="mt-1 text-xs font-mono text-gray-500 break-all">

@@ -52,6 +52,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
         Route::get('/selected-servers', [ServerManagementController::class, 'getSelectedServers'])->name('get-selected');
         Route::post('/add-server', [ServerManagementController::class, 'addServer'])->name('add');
         Route::post('/remove-server', [ServerManagementController::class, 'removeServer'])->name('remove');
+        Route::post('/update-phpmyadmin-url', [ServerManagementController::class, 'updatePhpMyAdminUrl'])->name('update-phpmyadmin-url');
     });
     
     // Settings routes

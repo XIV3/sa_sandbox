@@ -49,6 +49,7 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Web Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Database Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cores</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">phpMyAdmin URL</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Sites</th>
                                 </tr>
                             </thead>
@@ -89,6 +90,18 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst($server->database_type) ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $server->cores ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        <div class="flex items-center">
+                                            <input type="text" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full text-sm phpmyadmin-url-input" 
+                                                value="{{ $server->phpmyadmin_url }}" 
+                                                placeholder="Enter phpMyAdmin URL"
+                                                data-server-id="{{ $server->server_id }}">
+                                            <button type="button" class="ml-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 save-phpmyadmin-url-btn"
+                                                data-server-id="{{ $server->server_id }}">
+                                                Save
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <button type="button" class="inline-flex items-center text-indigo-600 hover:text-indigo-900 toggle-sites-btn" data-server-id="{{ $server->server_id }}">
                                             <span class="site-count">{{ $server->sites->count() }}</span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,7 +111,7 @@
                                     </td>
                                 </tr>
                                 <tr class="sites-row hidden" data-server-id="{{ $server->server_id }}">
-                                    <td colspan="9" class="px-3 py-4">
+                                    <td colspan="10" class="px-3 py-4">
                                         <div class="border rounded-md bg-gray-50 p-4">
                                             <h4 class="text-sm font-medium text-gray-900 mb-2">Sites on {{ $server->name }}</h4>
                                             @if($server->sites->count() > 0)
@@ -146,7 +159,7 @@
                                 </tr>
                                 @empty
                                 <tr class="empty-row">
-                                    <td colspan="9" class="px-3 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="10" class="px-3 py-8 text-center text-sm text-gray-500">
                                         No servers selected. Add servers from the list below.
                                     </td>
                                 </tr>
@@ -382,6 +395,16 @@
                 });
             });
             
+            // Add event listeners for save phpMyAdmin URL buttons
+            document.querySelectorAll('.save-phpmyadmin-url-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const serverId = this.getAttribute('data-server-id');
+                    const urlInput = document.querySelector(`.phpmyadmin-url-input[data-server-id="${serverId}"]`);
+                    const phpmyadminUrl = urlInput.value.trim();
+                    savePhpMyAdminUrl(serverId, phpmyadminUrl);
+                });
+            });
+            
             // Close notification modal
             notificationCloseBtn.addEventListener('click', function() {
                 notificationModal.classList.add('hidden');
@@ -450,6 +473,33 @@
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
+                    } else {
+                        showNotification('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error', 'An unexpected error occurred. Please try again.', 'error');
+                    console.error('Error:', error);
+                });
+            }
+            
+            // Save phpMyAdmin URL function
+            function savePhpMyAdminUrl(serverId, phpmyadminUrl) {
+                fetch('{{ route("admin.server-management.update-phpmyadmin-url") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ 
+                        server_id: serverId,
+                        phpmyadmin_url: phpmyadminUrl 
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Success', data.message, 'success');
                     } else {
                         showNotification('Error', data.message, 'error');
                     }

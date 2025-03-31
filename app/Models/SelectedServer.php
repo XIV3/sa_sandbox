@@ -23,6 +23,7 @@ class SelectedServer extends Model
         'database_type',
         'cores',
         'connection_status',
+        'phpmyadmin_url',
     ];
 
     /**

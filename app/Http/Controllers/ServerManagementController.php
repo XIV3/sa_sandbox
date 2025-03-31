@@ -119,4 +119,45 @@ class ServerManagementController extends Controller
             ]);
         }
     }
+    
+    /**
+     * Update the phpMyAdmin URL for a server
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updatePhpMyAdminUrl(Request $request): JsonResponse
+    {
+        $request->validate([
+            'server_id' => 'required|integer',
+            'phpmyadmin_url' => 'nullable|url'
+        ]);
+
+        $serverId = $request->input('server_id');
+        $phpmyadminUrl = $request->input('phpmyadmin_url');
+        
+        $server = SelectedServer::where('server_id', $serverId)->first();
+        
+        if (!$server) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Server not found in selected servers'
+            ]);
+        }
+        
+        try {
+            $server->phpmyadmin_url = $phpmyadminUrl;
+            $server->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'phpMyAdmin URL updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update phpMyAdmin URL: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
