@@ -12,7 +12,9 @@
                     <i class="fas fa-rocket me-1"></i> 
                     @php
                         $latestSiteId = \App\Models\Site::max('id');
-                        $siteCount = $latestSiteId ? $latestSiteId : "Thousands";
+                        $baseCount = $latestSiteId ? $latestSiteId : 0;
+                        $roundedCount = ceil($baseCount / 10) * 10;
+                        $siteCount = $roundedCount > 0 ? $roundedCount : "Thousands";
                     @endphp
                     {{ $siteCount }}+ Sites Deployed
                 </span>
