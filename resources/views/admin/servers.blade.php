@@ -7,6 +7,25 @@
             Choose and configure servers for your applications
         </p>
     </x-slot>
+    
+    <style>
+        /* Styles for server sites feature */
+        .sites-row {
+            transition: all 0.3s ease;
+        }
+        .sites-row.hidden {
+            display: none;
+        }
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+        .toggle-sites-btn:hover .chevron-icon {
+            color: rgb(79, 70, 229);
+        }
+        .server-row:hover {
+            background-color: rgb(249, 250, 251);
+        }
+    </style>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
@@ -30,11 +49,12 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Web Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Database Server</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Cores</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Sites</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse($selectedServers as $server)
-                                <tr>
+                                <tr class="server-row" data-server-id="{{ $server->server_id }}">
                                     <td class="relative whitespace-nowrap py-4 pl-4 pr-3 text-left text-sm font-medium sm:pl-6">
                                         <button type="button" class="text-red-600 hover:text-red-900 remove-server-btn" data-server-id="{{ $server->server_id }}">Remove</button>
                                     </td>
@@ -68,10 +88,65 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst($server->web_server) ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst($server->database_type) ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $server->cores ?? 'N/A' }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        <button type="button" class="inline-flex items-center text-indigo-600 hover:text-indigo-900 toggle-sites-btn" data-server-id="{{ $server->server_id }}">
+                                            <span class="site-count">{{ $server->sites->count() }}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="sites-row hidden" data-server-id="{{ $server->server_id }}">
+                                    <td colspan="9" class="px-3 py-4">
+                                        <div class="border rounded-md bg-gray-50 p-4">
+                                            <h4 class="text-sm font-medium text-gray-900 mb-2">Sites on {{ $server->name }}</h4>
+                                            @if($server->sites->count() > 0)
+                                                <div class="overflow-x-auto">
+                                                    <table class="min-w-full divide-y divide-gray-200">
+                                                        <thead class="bg-gray-100">
+                                                            <tr>
+                                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Name</th>
+                                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Domain</th>
+                                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Status</th>
+                                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Expires at</th>
+                                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-gray-200 bg-white">
+                                                            @foreach($server->sites as $site)
+                                                                <tr>
+                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">{{ $site->name }}</td>
+                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">{{ $site->domain }}</td>
+                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs">
+                                                                        @if($site->status == 'active')
+                                                                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
+                                                                        @elseif($site->status == 'pending')
+                                                                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">Pending</span>
+                                                                        @else
+                                                                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">{{ ucfirst($site->status) }}</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
+                                                                        {{ $site->expires_at ? $site->expires_at->format('Y-m-d H:i') : 'N/A' }}
+                                                                    </td>
+                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
+                                                                        <a href="{{ route('admin.sites.show', $site->id) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            @else
+                                                <p class="text-sm text-gray-500">No sites on this server.</p>
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr class="empty-row">
-                                    <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="9" class="px-3 py-8 text-center text-sm text-gray-500">
                                         No servers selected. Add servers from the list below.
                                     </td>
                                 </tr>
@@ -299,10 +374,37 @@
                 });
             });
             
+            // Add event listeners for toggle sites buttons
+            document.querySelectorAll('.toggle-sites-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const serverId = this.getAttribute('data-server-id');
+                    toggleSites(serverId);
+                });
+            });
+            
             // Close notification modal
             notificationCloseBtn.addEventListener('click', function() {
                 notificationModal.classList.add('hidden');
             });
+            
+            // Toggle sites for a server
+            function toggleSites(serverId) {
+                const sitesRow = document.querySelector(`.sites-row[data-server-id="${serverId}"]`);
+                const button = document.querySelector(`.toggle-sites-btn[data-server-id="${serverId}"]`);
+                const chevronIcon = button.querySelector('.chevron-icon');
+                
+                if (sitesRow.classList.contains('hidden')) {
+                    // Show sites
+                    sitesRow.classList.remove('hidden');
+                    // Rotate the chevron icon
+                    chevronIcon.style.transform = 'rotate(180deg)';
+                } else {
+                    // Hide sites
+                    sitesRow.classList.add('hidden');
+                    // Reset the chevron icon
+                    chevronIcon.style.transform = 'rotate(0)';
+                }
+            }
             
             // Add server function
             function addServer(serverId) {
