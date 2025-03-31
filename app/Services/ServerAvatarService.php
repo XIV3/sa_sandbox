@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class ServerAvatarService
@@ -13,10 +14,11 @@ class ServerAvatarService
     protected $apiKey;
     protected $organizationId;
     protected $isConfigured = false;
+    protected $settingsLoaded = false;
 
     public function __construct()
     {
-        $this->loadSettings();
+        // Don't load settings in constructor to avoid database access during deployment
     }
 
     /**
@@ -24,16 +26,39 @@ class ServerAvatarService
      */
     private function loadSettings()
     {
-        $settings = SystemSetting::whereIn('meta_key', [
-            'api_url', 'api_key', 'organisation_id'
-        ])->pluck('meta_value', 'meta_key')->toArray();
+        if ($this->settingsLoaded) {
+            return;
+        }
 
-        $this->apiUrl = $settings['api_url'] ?? 'https://api.serveravatar.com';
-        $this->apiKey = $settings['api_key'] ?? null;
-        $this->organizationId = $settings['organisation_id'] ?? null;
+        // Default values
+        $this->apiUrl = 'https://api.serveravatar.com';
+        $this->apiKey = null;
+        $this->organizationId = null;
+        $this->isConfigured = false;
+        $this->settingsLoaded = true;
 
-        // Check if all settings are available
-        $this->isConfigured = !empty($this->apiUrl) && !empty($this->apiKey) && !empty($this->organizationId);
+        // Skip during migrations
+        if (getenv('APP_MIGRATING') === 'true') {
+            return;
+        }
+
+        try {
+            if (!Schema::hasTable('system_settings')) {
+                return;
+            }
+
+            $settings = SystemSetting::whereIn('meta_key', [
+                'api_url', 'api_key', 'organisation_id'
+            ])->pluck('meta_value', 'meta_key')->toArray();
+
+            $this->apiUrl = $settings['api_url'] ?? 'https://api.serveravatar.com';
+            $this->apiKey = $settings['api_key'] ?? null;
+            $this->organizationId = $settings['organisation_id'] ?? null;
+
+            $this->isConfigured = !empty($this->apiUrl) && !empty($this->apiKey) && !empty($this->organizationId);
+        } catch (\Exception $e) {
+            // Silent fail
+        }
     }
 
     /**
@@ -41,6 +66,7 @@ class ServerAvatarService
      */
     public function isConfigured(): bool
     {
+        $this->loadSettings();
         return $this->isConfigured;
     }
 
@@ -52,6 +78,8 @@ class ServerAvatarService
      */
     public function getServers($page = 1)
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -113,6 +141,8 @@ class ServerAvatarService
      */
     public function getServer($serverId)
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -171,6 +201,8 @@ class ServerAvatarService
      */
     public function createWordPressSite(string $serverId, string $hostname): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -350,6 +382,8 @@ class ServerAvatarService
      */
     public function deleteApplication(string $serverId, string $applicationId): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -439,6 +473,8 @@ class ServerAvatarService
      */
     public function installSSL(string $serverId, string $applicationId, bool $useCustom = false, bool $forceHttps = true): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -645,6 +681,8 @@ class ServerAvatarService
      */
     public function getApplicationDetails(string $serverId, string $applicationId): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -748,6 +786,8 @@ class ServerAvatarService
      */
     public function getDatabaseInformation(string $serverId, string $applicationId, bool $fetchCredentials = false): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -952,6 +992,8 @@ class ServerAvatarService
      */
     public function getDatabaseUsers(string $serverId, string $databaseId): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -1216,6 +1258,8 @@ class ServerAvatarService
      */
     public function deleteDatabase(string $serverId, string $databaseId, string $applicationId = null): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,

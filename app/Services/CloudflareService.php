@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class CloudflareService
 {
@@ -13,10 +14,11 @@ class CloudflareService
     protected $zoneId;
     protected $domain;
     protected $isConfigured = false;
+    protected $settingsLoaded = false;
 
     public function __construct()
     {
-        $this->loadSettings();
+        // Don't load settings in constructor to avoid database access during deployment
     }
 
     /**
@@ -24,16 +26,39 @@ class CloudflareService
      */
     private function loadSettings()
     {
-        $settings = SystemSetting::whereIn('meta_key', [
-            'cloudflare_api_key', 'zone_id', 'domain'
-        ])->pluck('meta_value', 'meta_key')->toArray();
+        if ($this->settingsLoaded) {
+            return;
+        }
 
-        $this->apiKey = $settings['cloudflare_api_key'] ?? null;
-        $this->zoneId = $settings['zone_id'] ?? null;
-        $this->domain = $settings['domain'] ?? null;
+        // Default values
+        $this->apiKey = null;
+        $this->zoneId = null;
+        $this->domain = null;
+        $this->isConfigured = false;
+        $this->settingsLoaded = true;
 
-        // Check if all settings are available
-        $this->isConfigured = !empty($this->apiKey) && !empty($this->zoneId) && !empty($this->domain);
+        // Skip during migrations
+        if (getenv('APP_MIGRATING') === 'true') {
+            return;
+        }
+
+        try {
+            if (!Schema::hasTable('system_settings')) {
+                return;
+            }
+
+            $settings = SystemSetting::whereIn('meta_key', [
+                'cloudflare_api_key', 'zone_id', 'domain'
+            ])->pluck('meta_value', 'meta_key')->toArray();
+
+            $this->apiKey = $settings['cloudflare_api_key'] ?? null;
+            $this->zoneId = $settings['zone_id'] ?? null;
+            $this->domain = $settings['domain'] ?? null;
+
+            $this->isConfigured = !empty($this->apiKey) && !empty($this->zoneId) && !empty($this->domain);
+        } catch (\Exception $e) {
+            // Silent fail
+        }
     }
 
     /**
@@ -41,6 +66,7 @@ class CloudflareService
      */
     public function isConfigured(): bool
     {
+        $this->loadSettings();
         return $this->isConfigured;
     }
 
@@ -55,6 +81,8 @@ class CloudflareService
      */
     public function createARecord(string $name, string $ipAddress, bool $proxied = true, int $ttl = 1): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,
@@ -155,6 +183,8 @@ class CloudflareService
      */
     public function deleteDnsRecord(string $recordId): array
     {
+        $this->loadSettings();
+        
         if (!$this->isConfigured) {
             return [
                 'success' => false,

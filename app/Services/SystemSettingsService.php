@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class SystemSettingsService
 {
@@ -16,11 +17,24 @@ class SystemSettingsService
      */
     public function get(string $key, $default = null)
     {
-        // Try to get from cache first
-        return Cache::remember('system_setting_' . $key, 3600, function () use ($key, $default) {
-            $setting = SystemSetting::where('meta_key', $key)->first();
-            return $setting ? $setting->meta_value : $default;
-        });
+        // Skip during migrations
+        if (getenv('APP_MIGRATING') === 'true') {
+            return $default;
+        }
+
+        // Skip if table doesn't exist
+        if (!Schema::hasTable('system_settings')) {
+            return $default;
+        }
+
+        try {
+            return Cache::remember('system_setting_' . $key, 3600, function () use ($key, $default) {
+                $setting = SystemSetting::where('meta_key', $key)->first();
+                return $setting ? $setting->meta_value : $default;
+            });
+        } catch (\Exception $e) {
+            return $default;
+        }
     }
 
     /**
@@ -67,15 +81,21 @@ class SystemSettingsService
      */
     public function getUncachedDomain()
     {
-        $setting = SystemSetting::where('meta_key', 'domain')->first();
-        $domain = $setting ? $setting->meta_value : 'example.com';
+        // Skip during migrations
+        if (getenv('APP_MIGRATING') === 'true') {
+            return 'example.com';
+        }
         
-        \Illuminate\Support\Facades\Log::debug('Getting uncached domain from system settings', [
-            'raw_domain' => $domain,
-            'using_fallback' => empty($setting),
-            'returning' => $domain
-        ]);
+        // Skip if table doesn't exist
+        if (!Schema::hasTable('system_settings')) {
+            return 'example.com';
+        }
         
-        return $domain;
+        try {
+            $setting = SystemSetting::where('meta_key', 'domain')->first();
+            return $setting ? $setting->meta_value : 'example.com';
+        } catch (\Exception $e) {
+            return 'example.com';
+        }
     }
 }
