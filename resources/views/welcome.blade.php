@@ -558,7 +558,7 @@
                         </h2>
                         <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Yes! This platform is completely open-source and designed to be self-hosted. You can deploy it on your own infrastructure with full control over domains, timeouts, and configurations. Check out our GitHub repository for installation instructions, or use our one-click deploy option to get started quickly.
+                                Yes! This platform is completely open-source and designed to be self-hosted. You can deploy it on your own infrastructure with full control over domains, timeouts, and configurations. Check out our GitHub repository for installation instructions.
                             </div>
                         </div>
                     </div>
