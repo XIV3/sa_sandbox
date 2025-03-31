@@ -333,7 +333,7 @@
                     <a href="https://github.com/adarshsojitra/sandbox" target="_blank" class="btn btn-dark px-4 py-2 rounded-pill">
                         <i class="fab fa-github me-2"></i> View Source
                     </a>
-                    <a href="https://serveravatar.com/sandbox/" target="_blank" class="btn btn-primary px-4 py-2 rounded-pill">
+                    <a href="https://github.com/adarshsojitra/sandbox/blob/main/README.md" target="_blank" class="btn btn-primary px-4 py-2 rounded-pill">
                         <i class="fas fa-cloud-upload-alt me-2"></i> Deploy Your Own
                     </a>
                 </div>
