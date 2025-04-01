@@ -134,7 +134,7 @@ Sandbox integrates with [ServerAvatar](https://serveravatar.com) to create and m
 4. Enter your ServerAvatar API URL, API key, and Organization ID
 5. Test the connection
 
-## ☁️ Cloudflare Integration (Optional)
+## ☁️ Cloudflare Integration
 
 For automatic DNS management and SSL certificates:
 
@@ -236,7 +236,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Cloudflare](https://cloudflare.com) - DNS and SSL management
 - [Bootstrap](https://getbootstrap.com) - Frontend framework
 - [Tailwind CSS](https://tailwindcss.com) - Admin UI styling
-- [Alpine.js](https://alpinejs.dev) - JavaScript framework
+- [Alpine.js](https://alpinejs.dev) - JavaScrhttps://serveravatar.com/features#features_quick_server_setupipt framework
 
 ---
 
