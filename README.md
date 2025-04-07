@@ -43,7 +43,7 @@ The quickest way to see Sandbox in action is to visit [https://sandbox.serverava
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/serveravatar/sandbox.git
+git clone https://github.com/adarshsojitra/sandbox.git
 cd sandbox
 ```
 
