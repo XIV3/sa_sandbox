@@ -57,7 +57,7 @@
                                         </svg>
                                     </span>
                                     <input type="text" name="subdomain" id="subdomain" value="{{ old('subdomain', $subdomain) }}" class="block w-full min-w-0 flex-1 rounded-none border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="yoursite">
-                                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">.{{ $domainSetting }}</span>
+                                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">-wp.{{ $domainSetting }}</span>
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500">Only lowercase letters, numbers and hyphens allowed.</p>
                             </div>
