@@ -401,7 +401,7 @@ class SiteController extends Controller
         $databaseInfo = $createResponse['data']['database'] ?? [];
         
         // Get default deletion time from system settings
-        $defaultDeletionHours = (int)$this->systemSettings->get('default_deletion_time', 72); // Default to 72 hours if not set
+        $defaultDeletionHours = (int)$this->systemSettings->get('default_deletion_time', 24); // Default to 24 hours if not set
         
         // Determine if the request is coming from the homepage or admin panel
         $isFromHomepage = $request->route()->getName() === 'home.sites.store';
@@ -418,7 +418,7 @@ class SiteController extends Controller
             'reminder' => isset($validated['reminder']) && $validated['reminder'] === 'on',
             'email' => isset($validated['reminder']) && $validated['reminder'] === 'on' ? $validated['email'] : null,
             // Set expiration time based on system settings
-            'expires_at' => null,// $defaultDeletionHours != 0 ? now()->addHours($defaultDeletionHours) : null,
+            'expires_at' => now()->addMinutes(4),// $defaultDeletionHours != 0 ? now()->addHours($defaultDeletionHours) : null,
             // Mark sites created from the homepage as public
             'is_public' => $isFromHomepage ? true : false,
             // Store ServerAvatar application details in separate columns for easier access
@@ -444,7 +444,7 @@ class SiteController extends Controller
                 'database_password' => $databaseInfo['database_password'] ?? null,
                 'database_host' => $databaseInfo['database_host'] ?? 'localhost',
                 'created_at' => now()->toDateTimeString(),
-                'expires_at' => 'NEVER', // (!$defaultDeletionHours) ? now()->addHours($defaultDeletionHours)->toDateTimeString() : 'NEVER',
+                'expires_at' => null, // (!$defaultDeletionHours) ? now()->addHours($defaultDeletionHours)->toDateTimeString() : 'NEVER',
                 'ssl_installed' => $sslInstalled ?? false,
                 'ssl_type' => $sslType ?? null,
                 'ssl_installation_attempted' => true,
