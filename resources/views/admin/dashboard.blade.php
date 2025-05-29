@@ -166,7 +166,7 @@
                                                 </span>
                                             @endif
                                         @else
-                                            <span class="text-gray-400">N/A</span>
+                                            <span class="text-gray-400">NEVER</span>
                                         @endif
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
