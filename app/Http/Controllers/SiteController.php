@@ -444,7 +444,7 @@ class SiteController extends Controller
                 'database_password' => $databaseInfo['database_password'] ?? null,
                 'database_host' => $databaseInfo['database_host'] ?? 'localhost',
                 'created_at' => now()->toDateTimeString(),
-                'expires_at' => (!$defaultDeletionHours) ? now()->addHours($defaultDeletionHours)->toDateTimeString() : 'NEVER',
+                'expires_at' => 'NEVER', // (!$defaultDeletionHours) ? now()->addHours($defaultDeletionHours)->toDateTimeString() : 'NEVER',
                 'ssl_installed' => $sslInstalled ?? false,
                 'ssl_type' => $sslType ?? null,
                 'ssl_installation_attempted' => true,
