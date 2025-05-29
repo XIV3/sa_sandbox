@@ -22,7 +22,7 @@ A public information page for your site is available at:
 @endif
 
 ## Site Expiration
-This site will expire and be automatically deleted on **{{ $site->expires_at->format('F j, Y, g:i a') }}**.
+This site will expire and be automatically deleted on **{{ $site->expires_at->format('F j, Y, g:i a e') }}**.
 
 @component('mail::button', ['url' => 'https://' . $site->domain . '/wp-admin'])
 Visit WordPress Admin
