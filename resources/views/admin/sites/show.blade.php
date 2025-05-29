@@ -94,7 +94,7 @@
                                 <div>
                                     <div class="text-sm font-medium text-gray-400">Expires At</div>
                                     <div class="mt-1 text-base text-gray-900">
-                                        {{ $site->expires_at ? $site->expires_at->format('F j, Y g:i A') : 'NEVER' }}
+                                        {{ $site->expires_at ? $site->expires_at->format('F j, Y g:i A e') : 'NEVER' }}
                                     </div>
                                 </div>
                                 <div>
