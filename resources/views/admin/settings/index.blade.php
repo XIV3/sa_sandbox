@@ -45,7 +45,7 @@
                                         <option value="24" {{ isset($settings['default_deletion_time']) && $settings['default_deletion_time'] == '24' ? 'selected' : '' }}>24 hours</option>
                                         <option value="168" {{ isset($settings['default_deletion_time']) && $settings['default_deletion_time'] == '168' ? 'selected' : '' }}>1 week</option>
                                         <option value="720" {{ isset($settings['default_deletion_time']) && $settings['default_deletion_time'] == '720' ? 'selected' : '' }}>1 month</option>
-                                        <option value="0" {{ isset($settings['default_deletion_time']) && $settings['default_deletion_time'] == '0' ? 'selected' : '' }}>Indefinite</option>
+                                        <option value="10000" {{ isset($settings['default_deletion_time']) && $settings['default_deletion_time'] == '10000' ? 'selected' : '' }}>Indefinite</option>
                                     </select>
                                     <p class="mt-1 text-xs text-gray-500">Set the default time period after which inactive sites will be automatically deleted</p>
                                 </div>
