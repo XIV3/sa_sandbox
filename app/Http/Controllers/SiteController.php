@@ -418,7 +418,7 @@ class SiteController extends Controller
             'reminder' => isset($validated['reminder']) && $validated['reminder'] === 'on',
             'email' => isset($validated['reminder']) && $validated['reminder'] === 'on' ? $validated['email'] : null,
             // Set expiration time based on system settings
-            'expires_at' => now()->addMinutes(4),// $defaultDeletionHours != 0 ? now()->addHours($defaultDeletionHours) : null,
+            'expires_at' => now()->addHours($defaultDeletionHours != 0 ? $defaultDeletionHours : 100000),
             // Mark sites created from the homepage as public
             'is_public' => $isFromHomepage ? true : false,
             // Store ServerAvatar application details in separate columns for easier access
@@ -444,7 +444,7 @@ class SiteController extends Controller
                 'database_password' => $databaseInfo['database_password'] ?? null,
                 'database_host' => $databaseInfo['database_host'] ?? 'localhost',
                 'created_at' => now()->toDateTimeString(),
-                'expires_at' => null, // (!$defaultDeletionHours) ? now()->addHours($defaultDeletionHours)->toDateTimeString() : 'NEVER',
+                'expires_at' => now()->addHours($defaultDeletionHours != 0 ? $defaultDeletionHours : 100000)->toDateTimeString(),
                 'ssl_installed' => $sslInstalled ?? false,
                 'ssl_type' => $sslType ?? null,
                 'ssl_installation_attempted' => true,
