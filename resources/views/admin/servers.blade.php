@@ -141,7 +141,7 @@
                                                                         @endif
                                                                     </td>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
-                                                                        {{ $site->expires_at ? $site->expires_at->format('Y-m-d H:i') : 'N/A' }}
+                                                                        {{ $site->expires_at ? $site->expires_at->format('Y-m-d H:i') : 'NEVER' }}
                                                                     </td>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
                                                                         <a href="{{ route('admin.sites.show', $site->id) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
