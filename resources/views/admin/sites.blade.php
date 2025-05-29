@@ -96,7 +96,7 @@
                                                 </span>
                                             @endif
                                         @else
-                                            <span class="text-gray-400">N/A</span>
+                                            <span class="text-gray-400">NEVER</span>
                                         @endif
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
