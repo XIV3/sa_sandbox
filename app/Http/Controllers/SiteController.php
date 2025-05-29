@@ -459,15 +459,13 @@ class SiteController extends Controller
             try {
                 Log::info('Creating DNS A record for new site', [
                     'domain' => $site->domain,
-//                    'subdomain' => $validated['subdomain'],
-                    'subdomain' => $site->domain,
+                    'subdomain' => $site->domain, // 'subdomain' => $validated['subdomain'],
                     'ip_address' => $server->ip_address
                 ]);
 
                 // Create the DNS record
                 $dnsResponse = $this->cloudflareService->createARecord(
-//                    $validated['subdomain'], // Just the subdomain portion
-                    $site->domain,
+                    $site->domain,          // $validated['subdomain'], // Just the subdomain portion
                     $server->ip_address,    // The server's IP address
                     true                    // Proxied through Cloudflare
                 );
