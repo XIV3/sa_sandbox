@@ -60,10 +60,10 @@ class SiteController extends Controller
         $this->systemSettings->clearCache('domain');
         
         $systemDomain = $this->systemSettings->getUncachedDomain();
-        $domain = $subdomain . '.' . $systemDomain;
+        $domain = $subdomain . '-wp.' . $systemDomain;
         
         $validationRules = [
-            'subdomain' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
+            'subdomain' => 'required|string|max:252|regex:/^[a-z0-9-]+$/',
             'email' => 'nullable|email|required_if:reminder,on',
             'reminder' => 'nullable|string',
         ];
