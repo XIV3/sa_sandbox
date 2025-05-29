@@ -40,7 +40,7 @@ class Site extends Model
         'database_username',
         'database_password',
         'database_host',
-        'expires_at',
+        // 'expires_at',
         'deletion_notification_sent',
     ];
 
