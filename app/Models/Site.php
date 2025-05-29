@@ -76,7 +76,7 @@ class Site extends Model
             // Set the expiration date based on system settings
             if (!$site->expires_at) {
                 $defaultDeletionHours = SystemSetting::where('meta_key', 'default_deletion_time')->value('meta_value') ?? 24; // Default to 24 hours if not set
-                $site->expires_at = now()->addHours((int) $defaultDeletionHours);
+                $site->expires_at =  (int) $defaultDeletionHours != 0 ? now()->addHours((int) $defaultDeletionHours) : null;
             }
         });
     }
