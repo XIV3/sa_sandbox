@@ -83,7 +83,7 @@
                                 </div>
                                 <div>
                                     <div class="text-sm font-medium text-gray-400">Created At</div>
-                                    <div class="mt-1 text-base text-gray-900">{{ $site->created_at->format('F j, Y g:i A') }}</div>
+                                    <div class="mt-1 text-base text-gray-900">{{ $site->created_at->format('F j, Y g:i A e') }}</div>
                                 </div>
                                 <div>
                                     <div class="text-sm font-medium text-gray-400">Notification Email</div>
@@ -144,7 +144,7 @@
                                 <div>
                                     <div class="text-sm font-medium text-gray-400">Created</div>
                                     <div class="mt-1 text-base text-gray-900">
-                                        {{ !empty($site->site_data['dns_record']['created_at']) ? \Carbon\Carbon::parse($site->site_data['dns_record']['created_at'])->format('F j, Y g:i A') : 'Not available' }}
+                                        {{ !empty($site->site_data['dns_record']['created_at']) ? \Carbon\Carbon::parse($site->site_data['dns_record']['created_at'])->format('F j, Y g:i A e') : 'Not available' }}
                                     </div>
                                 </div>
                                 @if(!empty($site->cloudflare_record_id))
@@ -481,7 +481,7 @@
                                             <div class="text-sm text-yellow-700 mb-1">This site will be deleted in:</div>
                                             <div class="text-2xl font-bold text-yellow-800" x-text="countdown"></div>
                                             <div class="text-xs text-yellow-600 mt-1">
-                                                ({{ $site->expires_at->format('F j, Y g:i A') }})
+                                                ({{ $site->expires_at->format('F j, Y g:i A e') }})
                                             </div>
                                         </div>
                                         
