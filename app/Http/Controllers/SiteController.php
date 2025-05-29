@@ -418,7 +418,7 @@ class SiteController extends Controller
             'reminder' => isset($validated['reminder']) && $validated['reminder'] === 'on',
             'email' => isset($validated['reminder']) && $validated['reminder'] === 'on' ? $validated['email'] : null,
             // Set expiration time based on system settings
-            'expires_at' => now()->addHours($defaultDeletionHours),
+            'expires_at' => (!$defaultDeletionHours) ? now()->addHours($defaultDeletionHours) : null,
             // Mark sites created from the homepage as public
             'is_public' => $isFromHomepage ? true : false,
             // Store ServerAvatar application details in separate columns for easier access
