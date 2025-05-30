@@ -68,7 +68,7 @@
                                     </div>
                                     <div class="ml-3 text-sm">
                                         <label for="allow_site_creation" class="font-medium text-gray-700">Allow site creation from homepage</label>
-                                        <p class="text-gray-500">When enabled, users can create new sites directly from the homepage of the project</p>
+                                        <p class="text-gray-500">When enabled, users can create new sites directly from the homepage.</p>
                                     </div>
                                 </div>
                                 
