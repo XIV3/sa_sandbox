@@ -37,7 +37,7 @@
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Active Sites</h3>
                                 <div class="mt-2 flex items-baseline">
                                     <span class="text-3xl font-semibold text-indigo-600">{{ \App\Models\Site::count() }}</span>
-                                    <span class="ml-2 text-sm text-gray-600">websites</span>
+                                    <span class="ml-2 text-sm text-gray-600">website{{ \App\Models\Site::count() == 1 ? '' : 's' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Active Servers</h3>
                                 <div class="mt-2 flex items-baseline">
                                     <span class="text-3xl font-semibold text-emerald-600">{{ \App\Models\SelectedServer::count() }}</span>
-                                    <span class="ml-2 text-sm text-gray-600">servers</span>
+                                    <span class="ml-2 text-sm text-gray-600">server{{ \App\Models\SelectedServer::count() == 1 ? '' : 's' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Current Timeout</h3>
                                 <div class="mt-2 flex items-baseline">
                                     <span class="text-3xl font-semibold text-orange-600">{{ \App\Models\SystemSetting::where('meta_key', 'default_deletion_time')->value('meta_value') ?? 24 }}</span>
-                                    <span class="ml-2 text-sm text-gray-600">hours</span>
+                                    <span class="ml-2 text-sm text-gray-600">hour{{ \App\Models\SystemSetting::where('meta_key', 'default_deletion_time')->value('meta_value') == '1' ? '' : 's' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -442,12 +442,21 @@
                             <div>
                                 <div class="flex items-start mb-3">
                                     <div class="flex h-5 items-center">
+                                        <input id="permanent" name="permanent" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"> 
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="permanent" class="font-medium text-gray-700">Create a permanent site that does not expire</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start mb-3">
+                                    <div class="flex h-5 items-center">
                                         <input id="reminder" name="reminder" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
                                               x-model="sendEmail"
                                               @change="setUserEmail()">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="reminder" class="font-medium text-gray-700">Send me site info and remind me before delete</label>
+                                        <label for="reminder" class="font-medium text-gray-700">Send me site info upon creation and remind me before deletion</label>
                                     </div>
                                 </div>
                                 
