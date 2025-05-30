@@ -54,6 +54,16 @@
                             <div class="mt-6 space-y-4">
                                 <div class="flex items-start">
                                     <div class="flex h-5 items-center">
+                                        <input id="allow_permanent_sites" name="settings[allow_permanent_sites]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ isset($settings['allow_permanent_sites']) && $settings['allow_permanent_sites'] == '1' ? 'checked' : '' }}>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="allow_permanent_sites" class="font-medium text-gray-700">Allow permanent site creation for logged-in users</label>
+                                        <p class="text-gray-500">When enabled, registered users can create permanent sites that don't expire. These sites need to be manually deleted.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="flex h-5 items-center">
                                         <input id="allow_site_creation" name="settings[allow_site_creation]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ isset($settings['allow_site_creation']) && $settings['allow_site_creation'] == '1' ? 'checked' : '' }}>
                                     </div>
                                     <div class="ml-3 text-sm">
