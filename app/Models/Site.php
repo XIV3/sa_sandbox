@@ -40,7 +40,7 @@ class Site extends Model
         'database_username',
         'database_password',
         'database_host',
-        // 'expires_at',
+        'expires_at',
         'deletion_notification_sent',
     ];
 
@@ -76,7 +76,7 @@ class Site extends Model
             // Set the expiration date based on system settings
             if (!$site->expires_at) {
                 $defaultDeletionHours = SystemSetting::where('meta_key', 'default_deletion_time')->value('meta_value') ?? 24; // Default to 24 hours if not set
-                $site->expires_at =  (int) $defaultDeletionHours != 0 ? now()->addHours((int) $defaultDeletionHours) : null;
+                $site->expires_at =  (int) $defaultDeletionHours > 0 ? now()->addHours((int) $defaultDeletionHours) : null;
             }
         });
     }
