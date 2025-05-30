@@ -48,7 +48,8 @@ class SiteController extends Controller
     }
 
     public function store(Request $request)
-    {        $subdomain = $request->input('subdomain');
+    {        
+        $subdomain = $request->input('subdomain');
         if (!$subdomain) {
             return redirect()->route('admin.sites.index')
                 ->withErrors(['subdomain' => 'Subdomain is required'])
@@ -418,7 +419,7 @@ class SiteController extends Controller
             'reminder' => isset($validated['reminder']) && $validated['reminder'] === 'on',
             'email' => isset($validated['reminder']) && $validated['reminder'] === 'on' ? $validated['email'] : null,
             // Set expiration time based on system settings
-            'expires_at' => $defaultDeletionHours != 0 ? now()->addHours($defaultDeletionHours) : null,
+            'expires_at' => isset($request->input('permanent')) ? null : now()->addHours($defaultDeletionHours),
             // Mark sites created from the homepage as public
             'is_public' => $isFromHomepage ? true : false,
             // Store ServerAvatar application details in separate columns for easier access
@@ -444,7 +445,7 @@ class SiteController extends Controller
                 'database_password' => $databaseInfo['database_password'] ?? null,
                 'database_host' => $databaseInfo['database_host'] ?? 'localhost',
                 'created_at' => now()->toDateTimeString(),
-                'expires_at' => $defaultDeletionHours != 0 ? now()->addHours($defaultDeletionHours)->toDateTimeString() : 'NEVER',
+                'expires_at' => isset($request->input('permanent')) ? 'NEVER' : now()->addHours($defaultDeletionHours)->toDateTimeString(),
                 'ssl_installed' => $sslInstalled ?? false,
                 'ssl_type' => $sslType ?? null,
                 'ssl_installation_attempted' => true,
