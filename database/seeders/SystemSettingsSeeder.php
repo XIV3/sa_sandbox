@@ -19,6 +19,11 @@ class SystemSettingsSeeder extends Seeder
         );
 
         SystemSetting::updateOrCreate(
+            ['meta_key' => 'allow_permanent_sites'],
+            ['meta_value' => '0'] // Default to disabled
+        );
+        
+        SystemSetting::updateOrCreate(
             ['meta_key' => 'allow_site_creation'],
             ['meta_value' => '0'] // Default to disabled
         );
@@ -26,6 +31,11 @@ class SystemSettingsSeeder extends Seeder
         SystemSetting::updateOrCreate(
             ['meta_key' => 'allow_registration'],
             ['meta_value' => '1'] // Default to enabled
+        );
+
+        SystemSetting::updateOrCreate(
+            ['meta_key' => 'subdomain_postfix'],
+            ['meta_value' => '-wp'] // Additional characters to minimize duplicates
         );
 
         // Cloudflare Integration Settings
