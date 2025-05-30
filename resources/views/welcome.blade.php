@@ -109,6 +109,7 @@
                     @php
                         $allowSiteCreation = $systemSettings->get('allow_site_creation', '1');
                         $domain = $systemSettings->get('domain', 'example.com');
+                        $subdomain_postfix = $systemSettings->get('subdomain_postfix', '-tempwp')
                     @endphp
                     
                     @if($allowSiteCreation === '1' || $allowSiteCreation === null)
@@ -125,7 +126,7 @@
                                     </span>
                                     <input type="text" class="form-control form-control-lg border-start-0 ps-0 @error('subdomain') is-invalid @enderror" 
                                         id="subdomain" name="subdomain" placeholder="yoursite" value="{{ old('subdomain') }}">
-                                    <span class="input-group-text">.{{ $domain }}</span>
+                                    <span class="input-group-text">{{ $subdomain_postfix }}.{{ $domain }}</span>
                                 </div>
                                 <div class="form-text mt-2">Only lowercase letters, numbers and hyphens allowed.</div>
                                 @error('subdomain')
