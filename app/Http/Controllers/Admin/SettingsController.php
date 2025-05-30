@@ -41,7 +41,7 @@ class SettingsController extends Controller
     {
         $settings = $request->input('settings', []);
         
-        $checkboxSettings = ['allow_site_creation', 'allow_registration', 'mail_encryption'];
+        $checkboxSettings = ['allow_permanent_sites','allow_site_creation', 'allow_registration', 'mail_encryption'];
         
         $systemSettingsService = app(\App\Services\SystemSettingsService::class);
         
