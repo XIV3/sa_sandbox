@@ -30,9 +30,9 @@
                                         <option value="6">6 hours</option>
                                         <option value="12">12 hours</option>
                                         <option value="24">24 hours</option>
-                                        <option value="168">1 week</option>
-                                        <option value="720">1 month</option>
-                                        <option value="0">Indefinite</option>
+                                        <option value="72">72 hours</option>
+                                        <option value="168">7 days</option>
+                                        <option value="720">30 dayz</option>
                                     </select>
                                     <p class="mt-1 text-xs text-gray-500">Set the default time period after which inactive sites will be automatically deleted</p>
                                 </div>
