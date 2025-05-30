@@ -440,7 +440,6 @@
                             </div>
                             
                             <div>
-                                <!-- @if(App\Models\SystemSetting::where('meta_key', 'allow_permanent_sites')->meta_value == '1') -->
                                 <div class="flex items-start mb-3">
                                     <div class="flex h-5 items-center">
                                         <input id="permanent" name="permanent" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"> 
@@ -449,7 +448,6 @@
                                         <label for="permanent" class="font-medium text-gray-700">Create a permanent site that does not expire</label>
                                     </div>
                                 </div>
-                                <!-- @endif -->
                                 
                                 <div class="flex items-start mb-3">
                                     <div class="flex h-5 items-center">
