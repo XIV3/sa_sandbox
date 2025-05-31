@@ -176,7 +176,6 @@
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <div class="flex justify-end space-x-3">
-                                            <a href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a>
                                             <form action="{{ route('admin.sites.destroy', $site) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this site?');">
                                                 @csrf
                                                 @method('DELETE')
