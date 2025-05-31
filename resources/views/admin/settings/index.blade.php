@@ -57,7 +57,7 @@
                                         <input id="allow_permanent_sites" name="settings[allow_permanent_sites]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ isset($settings['allow_permanent_sites']) && $settings['allow_permanent_sites'] == '1' ? 'checked' : '' }}>
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="allow_permanent_sites" class="font-medium text-gray-700">Allow permanent site creation from registered users</label>
+                                        <label for="allow_permanent_sites" class="font-medium text-gray-700">Allow permanent site creation by registered users</label>
                                         <p class="text-gray-500">When enabled, registered users can create permanent sites that don't expire. These sites need to be manually deleted, if needed.</p>
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@
                                         <input id="allow_site_creation" name="settings[allow_site_creation]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ isset($settings['allow_site_creation']) && $settings['allow_site_creation'] == '1' ? 'checked' : '' }}>
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="allow_site_creation" class="font-medium text-gray-700">Allow site creation from unregistered users</label>
+                                        <label for="allow_site_creation" class="font-medium text-gray-700">Allow site creation by unregistered users</label>
                                         <p class="text-gray-500">When enabled, non-registered users can create new sites directly from the homepage.</p>
                                     </div>
                                 </div>
