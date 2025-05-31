@@ -58,7 +58,9 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($sites as $site)
                                 <tr>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $site->name }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
+                                        <a href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">{{ $site->name }}</a>
+                                    </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <a href="https://{{ $site->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 hover:underline flex items-center">
                                             {{ $site->domain }}
@@ -101,7 +103,7 @@
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <div x-data="{ deleting: false }" class="flex justify-end space-x-3">
-                                            <a x-show="!deleting" href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                            <!-- <a x-show="!deleting" href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">View</a> -->
                                             <form x-show="!deleting" action="{{ route('admin.sites.destroy', $site) }}" method="POST" class="inline" 
                                                   onsubmit="return confirm('Are you sure you want to delete this site?');"
                                                   @submit="deleting = true">
