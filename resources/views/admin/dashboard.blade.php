@@ -135,7 +135,9 @@
                                         </span>
                                         @endif
                                     </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $site->name }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
+                                        <a href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900">{{ $site->name }}</a>
+                                    </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <a href="https://{{ $site->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 hover:underline flex items-center">
                                             {{ $site->domain }}
