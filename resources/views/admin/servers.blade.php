@@ -123,13 +123,15 @@
                                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Domain</th>
                                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Status</th>
                                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Expires at</th>
-                                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Actions</th>
+                                                                <!-- <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-700">Actions</th> -->
                                                             </tr>
                                                         </thead>
                                                         <tbody class="divide-y divide-gray-200 bg-white">
                                                             @foreach($server->sites as $site)
                                                                 <tr>
-                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">{{ $site->name }}</td>
+                                                                    <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
+                                                                        <a href="{{ route('admin.sites.show', $site->id) }}" class="text-indigo-600 hover:text-indigo-900">{{ $site->name }}</a>
+                                                                    </td>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">{{ $site->domain }}</td>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs">
                                                                         @if($site->status == 'active')
@@ -143,9 +145,11 @@
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
                                                                         {{ $site->expires_at ? $site->expires_at->format('Y-m-d H:i') : 'NEVER' }}
                                                                     </td>
+                                                                    <!--
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
                                                                         <a href="{{ route('admin.sites.show', $site->id) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
                                                                     </td>
+                                                                    -->
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
