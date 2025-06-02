@@ -377,7 +377,7 @@
     </div>
     
     <!-- Hidden test form for debug purposes -->
-    @if(config('app.debug'))
+    @if(config('app.debug') && false)
     <div class="fixed bottom-4 right-4 z-50" x-data="{ testFormVisible: false }">
         <button type="button" @click="testFormVisible = !testFormVisible" class="px-4 py-2 bg-gray-800 text-white rounded-md shadow-md">
             Toggle Debug Form
