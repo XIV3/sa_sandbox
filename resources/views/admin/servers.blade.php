@@ -130,7 +130,7 @@
                                                             @foreach($server->sites as $site)
                                                                 <tr>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
-                                                                        <a href="{{ route('admin.sites.show', $site->id) }}" class="text-indigo-600 hover:text-indigo-900">{{ $site->name }}</a>
+                                                                        <a href="{{ route('admin.sites.show', $site->uuid) }}" class="text-blue-600 hover:text-blue-900 hover:underline">{{ $site->name }}</a>
                                                                     </td>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">{{ $site->domain }}</td>
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs">
@@ -147,7 +147,7 @@
                                                                     </td>
                                                                     <!--
                                                                     <td class="whitespace-nowrap px-3 py-2 text-xs text-gray-900">
-                                                                        <a href="{{ route('admin.sites.show', $site->id) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
+                                                                        <a href=" route('admin.sites.show', $site->id) " class="text-indigo-600 hover:text-indigo-900">View</a>
                                                                     </td>
                                                                     -->
                                                                 </tr>
